@@ -32,11 +32,11 @@ function DentalChartSelection({
                 {title}
             </label>
             <div className="relative overflow-x-auto">
-                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row border-b mb-0">
-                    <div className="border-r pr-1">
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row lg:border-b">
+                    <div className="border-r pr-1 sm:mb-5">
                         <div className="text-xs text-gray-500 font-medium text-right">Upper Right</div>
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[3rem] md:h-[4rem] sm:h-[2rem] h-[1rem] ur-tooth">
+                            <div className="flex gap-1 lg:h-[3rem] md:h-[3.5rem] sm:h-[3.5rem] h-[1.2rem] ur-tooth">
                                 {teeth.map((tooth) => {
                                     const toothId = `upper-right-${tooth}`;
                                     const isSelected = selectedTeeth.has(toothId);
@@ -57,7 +57,7 @@ function DentalChartSelection({
                         <div className="text-xs text-gray-500 font-medium text-left">Upper Left</div>
                         <div className="flex items-center justify-between gap-2">
 
-                            <div className="flex gap-1 lg:h-[3rem] md:h-[4rem] sm:h-[2rem] h-[1rem] ul-tooth">
+                            <div className="flex gap-1 lg:h-[3rem] md:h-[3.5rem] sm:h-[3.5rem] h-[1.2rem] ul-tooth">
                                 {teeth.slice().reverse().map((tooth) => {
                                     const toothId = `upper-left-${tooth}`;
                                     const isSelected = selectedTeeth.has(toothId);
@@ -75,10 +75,14 @@ function DentalChartSelection({
                     </div>
 
                 </div>
-                <div className="space-y-6 min-w-max flex flex-row">
-                    <div className="border-r pr-1">
+                <div className="h-[1px] w-full bg-gray-100 lg:hidden" id="mob-border" style={{
+                    position: "relative",
+                    top: "-8px"
+                }}></div>
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row">
+                    <div className="border-r pr-1 sm:mb-6">
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[2rem] h-[1rem] br-tooth">
+                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[3.2rem] h-[1.4rem] br-tooth">
                                 {teeth.map((tooth) => {
                                     const toothId = `bottom-right-${tooth}`;
                                     const isSelected = selectedTeeth.has(toothId);
@@ -98,8 +102,7 @@ function DentalChartSelection({
                     </div>
                     <div className="pl-1">
                         <div className="flex items-center justify-between gap-2">
-
-                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[2rem] h-[1rem] bl-tooth">
+                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[3.2rem] h-[1.4rem] bl-tooth">
                                 {teeth.slice().reverse().map((tooth) => {
                                     const toothId = `bottom-left-${tooth}`;
                                     const isSelected = selectedTeeth.has(toothId);
@@ -116,39 +119,7 @@ function DentalChartSelection({
                         </div>
                         <div className="text-xs text-gray-500 font-medium text-left">Bottom Left</div>
                     </div>
-                    {/* <div className="space-y-2">
-                        <div className="text-xs text-gray-500 font-medium text-center">Bottom Right / Bottom Left</div>
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1">
-                                {teeth.map((tooth) => {
-                                    const toothId = `lower-right-${tooth}`;
-                                    return (
-                                        <ToothShape
-                                            key={toothId}
-                                            number={tooth}
-                                            isSelected={selectedTeeth.has(toothId)}
-                                            onClick={() => onToothSelect(toothId)}
-                                            isLower={true}
-                                        />
-                                    );
-                                })}
-                            </div>
-                            <div className="flex gap-1">
-                                {teeth.slice().reverse().map((tooth) => {
-                                    const toothId = `lower-left-${tooth}`;
-                                    return (
-                                        <ToothShape
-                                            key={toothId}
-                                            number={tooth}
-                                            isSelected={selectedTeeth.has(toothId)}
-                                            onClick={() => onToothSelect(toothId)}
-                                            isLower={true}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div> */}
+            
                 </div>
             </div>
         </div>
@@ -412,7 +383,7 @@ export default function InvisalignRxForm() {
     };
 
     return (
-        <div className="min-h-screen p-6">
+        <div className="min-h-screen lg:p-6 p-2">
             <div className="max-w-5xl mx-auto">
                 {/* Close Button */}
                 <div className="flex justify-end mb-4">
@@ -423,7 +394,7 @@ export default function InvisalignRxForm() {
                 <h2 className="text-[2.2rem] font-bold text-gray-900 mb-8">Invisalign Rx Form</h2>
 
                 {/* Form Card */}
-                <div className="bg-white rounded-lg p-8 text-left mb-8">
+                <div className="bg-white rounded-lg lg:p-8 p-2 text-left mb-8">
 
                     {/* Patient Information Section */}
 
@@ -496,7 +467,7 @@ export default function InvisalignRxForm() {
                     </div>
 
                 </div>
-                <div className="bg-white rounded-lg p-8 text-left mb-8">
+                <div className="bg-white rounded-lg lg:p-8 p-2 text-left mb-8">
                     {/* Case Review Details Section */}
 
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Case Review Details</h2>

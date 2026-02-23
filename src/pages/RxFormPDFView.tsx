@@ -202,7 +202,7 @@ export default function RxFormPDFView() {
     }, []);
 
     return (
-        <div className="min-h-screen p-6 print:p-0 print:bg-white">
+        <div className="min-h-screen lg:p-6 p-2 print:p-0 print:bg-white">
             {/* Print Controls - Hidden when printing */}
             <div className="max-w-5xl mx-auto mb-4 print:hidden">
                 <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow">
