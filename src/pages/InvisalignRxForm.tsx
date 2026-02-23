@@ -77,7 +77,7 @@ function DentalChartSelection({
                 </div>
                 <div className="h-[1px] w-full bg-gray-100 lg:hidden" id="mob-border" style={{
                     position: "relative",
-                    top: "-14px"
+                    top: "-6px"
                 }}></div>
                 <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row">
                     <div className="border-r pr-1 sm:mb-6">

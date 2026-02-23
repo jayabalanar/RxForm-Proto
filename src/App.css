@@ -213,7 +213,7 @@
   }
 
   #mob-border {
-    top: -10px;
+    top: -12px !important;
   }
 }
 
@@ -224,13 +224,17 @@
   .br-tooth svg,
   .bl-tooth svg {
     width: 1.1rem;
-    height: 1.4rem;
+    height: 1.9rem;
   }
 
   #mob-border {
     margin: 6px 0px;
     position: relative;
-    top: -7px !important
+    top: -3px !important
+  }
+  .br-tooth,
+  .bl-tooth {
+    height: 2.5rem;
   }
 }
 
@@ -241,16 +245,21 @@
   .br-tooth svg,
   .bl-tooth svg {
     width: 1.3rem;
-    height: 1.5rem;
+    height: 2.3rem;
   }
 
   #mob-border {
     margin: 7px 0px;
-    top: -6px !important;
+    top: 0px !important;
+  }
+
+  .br-tooth,
+  .bl-tooth {
+    height: 2.5rem;
   }
 }
 
-@media (min-width: 641px) and (max-width: 768px) {
+/* @media (min-width: 641px) and (max-width: 768px) {
 
   .ur-tooth svg,
   .ul-tooth svg,
@@ -259,7 +268,7 @@
     width: 0.85rem;
     height: 1.6rem;
   }
-}
+} */
 
 #isView svg {
   height: 2rem;
