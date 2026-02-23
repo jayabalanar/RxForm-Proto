@@ -238,7 +238,7 @@
   }
 }
 
-@media (min-width: 370px) and (max-width: 419px) {
+@media (min-width: 370px) and (max-width: 380px) {
 
   .ur-tooth svg,
   .ul-tooth svg,
@@ -246,6 +246,49 @@
   .bl-tooth svg {
     width: 1.1rem;
     height: 1.9rem;
+  }
+
+  #mob-border {
+    margin: 6px 0px;
+    position: relative;
+    top: -3px !important
+  }
+  .br-tooth,
+  .bl-tooth {
+    height: 2.5rem;
+  }
+}
+
+
+@media (min-width: 380px) and (max-width: 410px) {
+
+  .ur-tooth svg,
+  .ul-tooth svg,
+  .br-tooth svg,
+  .bl-tooth svg {
+    width: 1.13rem;
+    height: 2rem;
+  }
+
+  #mob-border {
+    margin: 6px 0px;
+    position: relative;
+    top: -3px !important
+  }
+  .br-tooth,
+  .bl-tooth {
+    height: 2.5rem;
+  }
+}
+
+@media (min-width: 410px) and (max-width: 419px) {
+
+  .ur-tooth svg,
+  .ul-tooth svg,
+  .br-tooth svg,
+  .bl-tooth svg {
+    width: 1.2rem;
+    height: 2rem;
   }
 
   #mob-border {
