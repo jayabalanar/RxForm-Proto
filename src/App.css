@@ -241,11 +241,12 @@
   .br-tooth svg,
   .bl-tooth svg {
     width: 1.3rem;
-    height: 1.3rem;
+    height: 2rem;
   }
 
   #mob-border {
     margin: 2px 0px;
+    top: -9px !important;
   }
 }
 
