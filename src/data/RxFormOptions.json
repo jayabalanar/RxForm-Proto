@@ -1,0 +1,144 @@
+{
+    "appointmentType": [
+        {
+            "label": "STInv",
+            "value": "STInv"
+        },
+        {
+            "label": "StInvBondRPE",
+            "value": "StInvBondRPE"
+        },
+        {
+            "label": "StInvBondS",
+            "value": "StInvBondS"
+        },
+        {
+            "label": "StInvCar",
+            "value": "StInvCar"
+        },
+        {
+            "label": "STIPE",
+            "value": "STIPE"
+        },
+        {
+            "label": "StPh1InvBondRPE",
+            "value": "StPh1InvBondRPE"
+        },
+        {
+            "label": "InvDel",
+            "value": "InvDel"
+        },
+        {
+            "label": "InvDelBond",
+            "value": "InvDelBond"
+        },
+        {
+            "label": "InvDelBondRPE",
+            "value": "InvDelBondRPE"
+        },
+        {
+            "label": "InvDelIPR",
+            "value": "InvDelIPR"
+        },
+        {
+            "label": "InvBondFull",
+            "value": "InvBondFull"
+        },
+        {
+            "label": "InvStBondFull",
+            "value": "InvStBondFull"
+        },
+        {
+            "label": "PUInvDel",
+            "value": "PUInvDel"
+        }
+    ],
+    "type": [
+        {
+            "label": "Initial",
+            "value": "Initial"
+        },
+        {
+            "label": "AA",
+            "value": "AA"
+        }
+    ],
+    "wearSchedule": [
+        {
+            "label": "5 Days",
+            "value": "5"
+        },
+        {
+            "label": "7 Days",
+            "value": "7"
+        },
+        {
+            "label": "10 Days",
+            "value": "10"
+        },
+        {
+            "label": "14 Days",
+            "value": "14"
+        }
+    ],
+    "rightElastic": [
+        {
+            "label": "Gorilla FT",
+            "value": "Gorilla FT"
+        },
+        {
+            "label": "Gorilla NT",
+            "value": "Gorilla NT"
+        },
+        {
+            "label": "Bald Eagle FT",
+            "value": "Bald Eagle FT"
+        },
+        {
+            "label": "Bald Eagle NT",
+            "value": "Bald Eagle NT"
+        },
+        {
+            "label": "Carriere",
+            "value": "Carriere"
+        },
+        {
+            "label": "Bootstrap",
+            "value": "Bootstrap"
+        },
+        {
+            "label": "Eval chairside",
+            "value": "Eval chairside"
+        }
+    ],
+    "leftElastic": [
+        {
+            "label": "Gorilla FT",
+            "value": "Gorilla FT"
+        },
+        {
+            "label": "Gorilla NT",
+            "value": "Gorilla NT"
+        },
+        {
+            "label": "Bald Eagle FT",
+            "value": "Bald Eagle FT"
+        },
+        {
+            "label": "Bald Eagle NT",
+            "value": "Bald Eagle NT"
+        },
+        {
+            "label": "Carriere",
+            "value": "Carriere"
+        },
+        {
+            "label": "Bootstrap",
+            "value": "Bootstrap"
+        },
+        {
+            "label": "Eval chairside",
+            "value": "Eval chairside"
+        }
+    ]
+}
