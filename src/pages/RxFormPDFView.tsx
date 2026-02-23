@@ -33,12 +33,12 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
             <label className="block text-sm font-medium text-gray-700 mb-2">
                 {title}
             </label>
-            <div className="relative">
-                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row border-b mb-0">
-                    <div className="border-r pr-1 mb-2">
+            <div className="relative overflow-x-auto">
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row lg:border-b">
+                    <div className="border-r pr-1 sm:mb-5">
                         <div className="text-xs text-gray-500 font-medium text-right">Upper Right</div>
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[2.4rem] md:h-[4rem] sm:h-[2rem] h-[1rem] ur-tooth">
+                            <div className="flex gap-1 lg:h-[3rem] md:h-[3.5rem] sm:h-[3.5rem] h-[1.2rem] ur-tooth">
                                 {teeth.map((tooth) => {
                                     const toothId = `upper-right-${tooth}`;
                                     const isSelected = selectedTeeth ? selectedTeeth.has(toothId) : false;
@@ -57,7 +57,7 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
                     <div className="pl-1">
                         <div className="text-xs text-gray-500 font-medium text-left">Upper Left</div>
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[2.4rem] md:h-[4rem] sm:h-[2rem] h-[1rem] ul-tooth">
+                            <div className="flex gap-1 lg:h-[3rem] md:h-[3.5rem] sm:h-[3.5rem] h-[1.2rem] ul-tooth">
                                 {teeth.slice().reverse().map((tooth) => {
                                     const toothId = `upper-left-${tooth}`;
                                     const isSelected = selectedTeeth ? selectedTeeth.has(toothId) : false;
@@ -74,10 +74,17 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
                         </div>
                     </div>
                 </div>
-                <div className="space-y-6 min-w-max flex flex-row">
-                    <div className="border-r pr-1 mt-3">
+                <div
+                    className="h-[1px] w-full bg-gray-100 lg:hidden"
+                    style={{
+                        position: "relative",
+                        top: "-8px",
+                    }}
+                ></div>
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row">
+                    <div className="border-r pr-1 sm:mb-6">
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[2.1rem] md:h-[4rem] sm:h-[2rem] h-[1rem] br-tooth">
+                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[3.2rem] h-[1.4rem] br-tooth">
                                 {teeth.map((tooth) => {
                                     const toothId = `bottom-right-${tooth}`;
                                     const isSelected = selectedTeeth ? selectedTeeth.has(toothId) : false;
@@ -94,9 +101,9 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
                         </div>
                         <div className="text-xs text-gray-500 font-medium text-right">Bottom Right</div>
                     </div>
-                    <div className="pl-1 mt-3">
+                    <div className="pl-1">
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex gap-1 lg:h-[2.1rem] md:h-[4rem] sm:h-[2rem] h-[1rem] bl-tooth">
+                            <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[3.2rem] h-[1.4rem] bl-tooth">
                                 {teeth.slice().reverse().map((tooth) => {
                                     const toothId = `bottom-left-${tooth}`;
                                     const isSelected = selectedTeeth ? selectedTeeth.has(toothId) : false;
@@ -224,12 +231,13 @@ export default function RxFormPDFView() {
                 </div>
             </div>
 
-            {/* PDF Content - A4 Size */}
+            {/* PDF Content - A4 Size (responsive on screen) */}
             <div
                 ref={printRef}
-                className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 print:shadow-none print:rounded-none print:p-12"
+                className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 print:shadow-none print:rounded-none print:p-12"
                 style={{
-                    width: "210mm",
+                    width: "100%",
+                    maxWidth: "210mm",
                     minHeight: "297mm",
                     margin: "0 auto",
                 }}
@@ -239,7 +247,7 @@ export default function RxFormPDFView() {
                 {/* Patient Information Section */}
                 <div className="mb-8 print:mb-6 text-left">
                     <h2 className="text-lg font-bold text-gray-900 mb-4 print:mb-3">Patient information:</h2>
-                    <div className="grid grid-cols-4 gap-4 print:gap-1">
+                    <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4 print:gap-1">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
                                 First Name*
@@ -280,7 +288,7 @@ export default function RxFormPDFView() {
                     <h2 className="text-lg font-bold text-gray-900 mb-4 print:mb-3">Case Review Details</h2>
 
                     {/* General Details */}
-                    <div className="grid grid-cols-2 gap-2 mb-6 print:mb-4 print:gap-2 row-gap-6" style={{
+                    <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-2 mb-6 print:mb-4 print:gap-2 row-gap-6" style={{
                         rowGap: "20px"
                     }}>
                         <div>
@@ -340,7 +348,7 @@ export default function RxFormPDFView() {
                     </div>
 
                     {/* Additional Information */}
-                    <div className="grid grid-cols-2 gap-2 print:gap-2 row-gap-6" style={{
+                    <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-2 print:gap-2 row-gap-6" style={{
                         rowGap: "20px"
                     }}>
                         <div>
