@@ -9,80 +9,9 @@ import {
     SelectValue,
 } from "../components/ui/select";
 import { Button } from "../components/ui/button";
-import { cn } from "../lib/utils";
 import { useNavigate } from "react-router";
 import RxFormOptions from "../data/RxFormOptions.json";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
-function ToothShape({
-    number,
-    isSelected,
-    onClick,
-    isLower = false
-}: {
-    number: number;
-    isSelected: boolean;
-    onClick: () => void;
-    isLower?: boolean;
-}) {
-    const showPrime = isLower && (number === 1 || number === 2);
-
-    const getToothShape = () => {
-        if (number >= 6) {
-            return "M";
-        }
-        if (number >= 4) {
-            return "P";
-        }
-        if (number === 3) {
-            return "C";
-        }
-        return "I";
-    };
-
-    const shapeType = getToothShape();
-
-    return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "relative flex items-center justify-center cursor-pointer group",
-                "w-9 h-11 sm:w-10 sm:h-12",
-                "transition-transform hover:scale-105 active:scale-95"
-            )}
-        >
-            <svg
-                viewBox="0 0 36 44"
-                className={cn(
-                    "absolute inset-0",
-                    isSelected
-                        ? "fill-[#CDEFD2] stroke-[#5BA86C] stroke-[1.2]"
-                        : "fill-white stroke-gray-300 stroke-[1.2]"
-                )}
-                style={{ filter: isSelected ? "drop-shadow(0 1px 2px rgba(21, 128, 61, 0.35))" : "none" }}
-            >
-                {shapeType === "M" && (
-                    <path d="M3 10 Q3 5 8 5 L28 5 Q33 5 33 10 L33 34 Q33 39 28 39 L8 39 Q3 39 3 34 Z M5 14 L5 30 L9 30 L9 22 L13 22 L13 30 L17 30 L17 22 L19 22 L19 30 L23 30 L23 22 L27 22 L27 30 L31 30 L31 14 Z" />
-                )}
-                {shapeType === "P" && (
-                    <path d="M5 10 Q5 5 10 5 L26 5 Q31 5 31 10 L31 34 Q31 39 26 39 L10 39 Q5 39 5 34 Z M7 14 L7 30 L11 30 L11 22 L19 22 L19 30 L23 30 L23 22 L25 22 L25 30 L29 30 L29 14 Z" />
-                )}
-                {shapeType === "C" && (
-                    <path d="M10 10 Q10 5 14 5 L22 5 Q26 5 26 10 L26 22 Q22 26 18 26 Q14 26 10 22 Z M12 14 L12 20 L14 20 L14 24 L18 24 L18 20 L22 20 L22 14 Z" />
-                )}
-                {shapeType === "I" && (
-                    <rect x="7" y="5" width="22" height="34" rx="3" />
-                )}
-            </svg>
-            <span className={cn(
-                "relative z-10 font-semibold",
-                "text-[0.6rem] sm:text-xs",
-                isSelected ? "text-[#3F7A4B]" : "text-gray-500"
-            )}>
-                {number}{showPrime && "'"}
-            </span>
-        </button>
-    );
-}
 
 
 // Dental Chart Selection Component
@@ -227,70 +156,70 @@ function DentalChartSelection({
 }
 
 // Buttons Chart Component (keeping the original simple design)
-function DentalChart({ title }: { title: string }) {
-    const teeth = [8, 7, 6, 5, 4, 3, 2, 1];
+// function DentalChart({ title }: { title: string }) {
+//     const teeth = [8, 7, 6, 5, 4, 3, 2, 1];
 
-    return (
-        <div className="space-y-4">
-            <h4 className="font-semibold text-gray-700">{title}</h4>
-            <div className="space-y-6">
-                {/* Upper Arch */}
-                <div className="space-y-2">
-                    <div className="text-xs text-gray-500 font-medium">Upper Right / Upper Left</div>
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex gap-1">
-                            {teeth.map((tooth) => (
-                                <div
-                                    key={`upper-right-${tooth}`}
-                                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
-                                >
-                                    {tooth}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="flex gap-1">
-                            {teeth.slice().reverse().map((tooth) => (
-                                <div
-                                    key={`upper-left-${tooth}`}
-                                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
-                                >
-                                    {tooth}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+//     return (
+//         <div className="space-y-4">
+//             <h4 className="font-semibold text-gray-700">{title}</h4>
+//             <div className="space-y-6">
+//                 {/* Upper Arch */}
+//                 <div className="space-y-2">
+//                     <div className="text-xs text-gray-500 font-medium">Upper Right / Upper Left</div>
+//                     <div className="flex items-center justify-between gap-2">
+//                         <div className="flex gap-1">
+//                             {teeth.map((tooth) => (
+//                                 <div
+//                                     key={`upper-right-${tooth}`}
+//                                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
+//                                 >
+//                                     {tooth}
+//                                 </div>
+//                             ))}
+//                         </div>
+//                         <div className="flex gap-1">
+//                             {teeth.slice().reverse().map((tooth) => (
+//                                 <div
+//                                     key={`upper-left-${tooth}`}
+//                                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
+//                                 >
+//                                     {tooth}
+//                                 </div>
+//                             ))}
+//                         </div>
+//                     </div>
+//                 </div>
 
-                {/* Lower Arch */}
-                <div className="space-y-2">
-                    <div className="text-xs text-gray-500 font-medium">Bottom Right / Bottom Left</div>
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex gap-1">
-                            {teeth.map((tooth) => (
-                                <div
-                                    key={`lower-right-${tooth}`}
-                                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
-                                >
-                                    {tooth}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="flex gap-1">
-                            {teeth.slice().reverse().map((tooth) => (
-                                <div
-                                    key={`lower-left-${tooth}`}
-                                    className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
-                                >
-                                    {tooth}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+//                 {/* Lower Arch */}
+//                 <div className="space-y-2">
+//                     <div className="text-xs text-gray-500 font-medium">Bottom Right / Bottom Left</div>
+//                     <div className="flex items-center justify-between gap-2">
+//                         <div className="flex gap-1">
+//                             {teeth.map((tooth) => (
+//                                 <div
+//                                     key={`lower-right-${tooth}`}
+//                                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
+//                                 >
+//                                     {tooth}
+//                                 </div>
+//                             ))}
+//                         </div>
+//                         <div className="flex gap-1">
+//                             {teeth.slice().reverse().map((tooth) => (
+//                                 <div
+//                                     key={`lower-left-${tooth}`}
+//                                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs font-medium text-gray-600 bg-white"
+//                                 >
+//                                     {tooth}
+//                                 </div>
+//                             ))}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// }
 
 function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: () => void; onApprove: () => void; onSaveDraft: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
