@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {  Calendar, ChevronDown, FileIcon } from "lucide-react";
+import { CalendarIcon, ChevronDown, FileIcon } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
     Select,
@@ -8,11 +8,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../components/ui/select";
+import { format } from "date-fns"
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router";
 import RxFormOptions from "../data/RxFormOptions.json";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
-
+import React from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar"
 
 // Dental Chart Selection Component
 function DentalChartSelection({
@@ -119,7 +122,7 @@ function DentalChartSelection({
                         </div>
                         <div className="text-xs text-gray-500 font-medium text-left">Bottom Left</div>
                     </div>
-            
+
                 </div>
             </div>
         </div>
@@ -200,7 +203,7 @@ function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: 
             <div>
                 <Button
                     onClick={onGeneratePDF}
-                    className="!bg-[#efefef] !hover:bg-[#2a4a6f] !text-[#030C21] !shadow-lg !outline-none !rounded-full !h-12"
+                    className="!bg-[#efefef] !hover:bg-[#2a4a6f] !text-[#030C21] !shadow-lg !outline-none !rounded-full !h-12 !p-2 !pl-4 !pr-4"
                 >
                     Generate PDF
                     <FileIcon className="w-4 h-4 ml-2" />
@@ -209,7 +212,7 @@ function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: 
             <div className="relative">
                 <Button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="!bg-[#030C21] !hover:bg-[#2a4a6f] !text-white !shadow-lg !outline-none !rounded-full !h-12"
+                    className="!bg-[#030C21] !hover:bg-[#2a4a6f] !text-white !shadow-lg !outline-none !rounded-full !h-12 !p-2 !pl-4 !pr-4"
                 >
                     Action
                     <ChevronDown className="w-4 h-4 ml-2" />
@@ -276,8 +279,10 @@ export default function InvisalignRxForm() {
 
     const [nonEnamelTeeth, setNonEnamelTeeth] = useState<Set<string>>(new Set());
     const [lingualTeeth, setLingualTeeth] = useState<Set<string>>(new Set());
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [buttonTeeth, setButtonTeeth] = useState<Set<string>>(new Set());
 
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [date, setDate] = React.useState<Date>()
     useEffect(() => {
         if (!toastMessage) {
             return;
@@ -315,7 +320,7 @@ export default function InvisalignRxForm() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleToothSelect = (chartType: "nonEnamel" | "lingual", toothId: string) => {
+    const handleToothSelect = (chartType: "nonEnamel" | "lingual" | "button", toothId: string) => {
         if (chartType === "nonEnamel") {
             setNonEnamelTeeth((prev) => {
                 const newSet = new Set(prev);
@@ -326,8 +331,18 @@ export default function InvisalignRxForm() {
                 }
                 return newSet;
             });
-        } else {
+        } else if (chartType === "lingual") {
             setLingualTeeth((prev) => {
+                const newSet = new Set(prev);
+                if (newSet.has(toothId)) {
+                    newSet.delete(toothId);
+                } else {
+                    newSet.add(toothId);
+                }
+                return newSet;
+            });
+        } else if (chartType === "button") {
+            setButtonTeeth((prev) => {
                 const newSet = new Set(prev);
                 if (newSet.has(toothId)) {
                     newSet.delete(toothId);
@@ -345,6 +360,8 @@ export default function InvisalignRxForm() {
             formData,
             nonEnamelTeeth: Array.from(nonEnamelTeeth),
             lingualTeeth: Array.from(lingualTeeth),
+            buttonTeeth: Array.from(buttonTeeth),
+            
         };
         try {
             window.localStorage.setItem(key, JSON.stringify(payload));
@@ -358,6 +375,7 @@ export default function InvisalignRxForm() {
                 formData,
                 nonEnamelTeeth: Array.from(nonEnamelTeeth),
                 lingualTeeth: Array.from(lingualTeeth),
+                buttonTeeth: Array.from(buttonTeeth),
             },
         });
     };
@@ -366,6 +384,7 @@ export default function InvisalignRxForm() {
         setFormData(initialFormData);
         setNonEnamelTeeth(new Set());
         setLingualTeeth(new Set());
+        setButtonTeeth(new Set());
     };
 
     const handleApprove = () => {
@@ -374,7 +393,7 @@ export default function InvisalignRxForm() {
         clearForm();
         setToastMessage("Form approved and saved");
     };
-    
+
     const handleSaveDraft = () => {
         saveFormToLocalStorage("Approved");
         saveFormToLocalStorage("Draft");
@@ -424,7 +443,23 @@ export default function InvisalignRxForm() {
                                 Appointment Date*
                             </label>
                             <div className="relative">
-                                <Input
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            data-empty={!date}
+                                            className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none"
+                                        >
+                                            <CalendarIcon />
+                                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-1">
+                                        <Calendar mode="single" selected={date} onSelect={setDate} 
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                {/* <Input
                                     type="text"
                                     value={formData.appointmentDate}
                                     onChange={(e) => {
@@ -441,7 +476,7 @@ export default function InvisalignRxForm() {
                                     maxLength={10}
                                     className="pr-10 h-10"
                                 />
-                                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" /> */}
                             </div>
                         </div>
                         <div>
@@ -585,6 +620,11 @@ export default function InvisalignRxForm() {
                             title="Lingual"
                             selectedTeeth={lingualTeeth}
                             onToothSelect={(toothId) => handleToothSelect("lingual", toothId)}
+                        />
+                        <DentalChartSelection
+                            title="Buttons"
+                            selectedTeeth={buttonTeeth}
+                            onToothSelect={(toothId) => handleToothSelect("button", toothId)}
                         />
                     </div>
 

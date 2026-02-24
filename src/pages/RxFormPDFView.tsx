@@ -169,6 +169,7 @@ export default function RxFormPDFView() {
             formData?: FormData;
             nonEnamelTeeth?: string[];
             lingualTeeth?: string[];
+            buttonTeeth?: string[];
         }
         | undefined;
 
@@ -198,6 +199,15 @@ export default function RxFormPDFView() {
         (hasStateLingual ? stateLingual : undefined) ||
         (storedPayload && Array.isArray(storedPayload.lingualTeeth) ? storedPayload.lingualTeeth : [])
     );
+
+    const stateButton = state && state.buttonTeeth;
+    const hasStateButton = !!stateButton && stateButton.length > 0;
+
+    const buttonTeeth = new Set<string>(
+        (hasStateButton ? stateButton : undefined) ||
+        (storedPayload && Array.isArray(storedPayload.buttonTeeth) ? storedPayload.buttonTeeth : [])
+    );
+
 
 
     useEffect(() => {
@@ -343,6 +353,7 @@ export default function RxFormPDFView() {
                     <div className="grid lg:grid-cols-2 md:grid-cols-1 print:grid-cols-2 sm:grid-cols-1 gap-6 mb-6 print:gap-1" id="isView">
                         <DentalChartPDF title="Non Enamel" selectedTeeth={nonEnamelTeeth} />
                         <DentalChartPDF title="Lingual" selectedTeeth={lingualTeeth} />
+                        <DentalChartPDF title="Button" selectedTeeth={buttonTeeth} />
                     </div>
 
                     {/* Additional Information */}
