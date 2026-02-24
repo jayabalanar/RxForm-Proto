@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { PlusIcon, Search, Filter, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight } from "lucide-react";
+import { PlusIcon, Search, Filter, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, FilterIcon, SlidersIcon, SlidersHorizontalIcon } from "lucide-react";
 import { Table, TableRow, TableBody, TableHeader, TableHead, TableCell } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
@@ -15,6 +15,7 @@ import { useNavigate } from "react-router";
 
 interface RxFormData {
     id: number;
+    patientImage: string;
     patientName: string;
     patientInfo: string;
     formType: string;
@@ -23,14 +24,14 @@ interface RxFormData {
 }
 
 const mockData: RxFormData[] = [
-    { id: 1, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 2, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 3, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 4, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 5, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 6, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 7, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 8, patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
+    { id: 1, patientImage: "https://randomuser.me/api/portraits/men/1.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
+    { id: 2, patientImage: "https://randomuser.me/api/portraits/men/2.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
+    { id: 3, patientImage: "https://randomuser.me/api/portraits/men/3.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
+    { id: 4, patientImage: "https://randomuser.me/api/portraits/men/4.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
+    { id: 5, patientImage: "https://randomuser.me/api/portraits/men/5.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
+    { id: 6, patientImage: "https://randomuser.me/api/portraits/men/6.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
+    { id: 7, patientImage: "https://randomuser.me/api/portraits/men/7.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
+    { id: 8, patientImage: "https://randomuser.me/api/portraits/men/8.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
 ];
 
 interface Patient {
@@ -84,8 +85,9 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                         onClick={() => setIsOpen(false)}
                     />
                     <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-20">
-                        <button
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        <Button
+                            variant="ghost"
+                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                             onClick={() => {
                                 setIsOpen(false);
                                 goToPDFView();
@@ -93,9 +95,10 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                         >
                             <Eye className="w-4 h-4" />
                             View PDF
-                        </button>
-                        <button
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                             onClick={() => {
                                 setIsOpen(false);
                                 goToEditPage();
@@ -103,14 +106,15 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                         >
                             <Pencil className="w-4 h-4" />
                             Edit
-                        </button>
-                        <button
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                             onClick={() => setIsOpen(false)}
                         >
                             <Copy className="w-4 h-4" />
                             Copy Link
-                        </button>
+                        </Button>
                     </div>
                 </>
             )}
@@ -159,10 +163,10 @@ export default function RxFormTable() {
     const goToPDFView = (rowData?: RxFormData) => {
         // Create form data from row data or use default values
         const formData = {
-            firstName: rowData?.patientName.split(" ")[0] || "Megan",
-            lastName: rowData?.patientName.split(" ").slice(1).join(" ") || "Smith",
-            appointmentDate: rowData?.lastUpdated || "06-14-2025",
-            appointmentType: "STInv",
+            firstName: rowData?.patientName.split(" ")[0] || "",
+            lastName: rowData?.patientName.split(" ").slice(1).join(" ") || "",
+            appointmentDate: null,
+            appointmentType: "",
             type: "",
             iprAtAligner: "",
             leftElastic: "",
@@ -178,7 +182,7 @@ export default function RxFormTable() {
             scanAt: "",
             nextScan: "",
         };
-        
+
         navigate("/rx-form/pdf", { state: { formData } });
     };
 
@@ -207,11 +211,11 @@ export default function RxFormTable() {
 
     return (
         <div className="min-h-screen min-w-screen bg-[#FAFAFB]">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto p-2 pl-2 pr-2 lg:p-5 lg:pl-10 lg:pr-10">
                 {/* Header with Add Rx button */}
-                <Header 
-                    pageTitle="RxForm" 
-                    btnLbl="Add RxForm" 
+                <Header
+                    pageTitle="RxForm"
+                    btnLbl="Add RxForm"
                     btnIcon={PlusIcon}
                     onButtonClick={() => setIsDialogOpen(true)}
                 />
@@ -225,42 +229,47 @@ export default function RxFormTable() {
                             <input
                                 type="text"
                                 placeholder="Search"
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <Filter className="w-4 h-4" />
+                        <Button variant="secondary" className="!bg-[#F5F5F7] !border-[#EBECEE] flex items-center gap-2 !rounded-full w-[100px] border border-gray-300">
+                            <SlidersHorizontalIcon className="w-4 h-4" />
                             Filter
                         </Button>
                     </div>
 
                     {/* Table */}
                     <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
+                        <Table className="w-full overflow-hidden rounded-md">
+                            <TableHeader className="bg-[#F5F5F7] border-b">
                                 <TableRow className="border-b">
-                                    <TableHead className="font-semibold text-gray-700">Patient Name</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Form Type</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Last Updated</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Status</TableHead>
-                                    <TableHead className="font-semibold text-gray-700">Action</TableHead>
+                                    <TableHead className="min-w-[200px]">Patient Name</TableHead>
+                                    <TableHead className="min-w-[200px]">Form Type</TableHead>
+                                    <TableHead className="min-w-[150px]">Last Updated</TableHead>
+                                    <TableHead className="min-w-[100px]">Status</TableHead>
+                                    <TableHead className="min-w-[100px] text-right">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {mockData.map((row) => (
                                     <TableRow key={row.id} className="border-b hover:bg-gray-50">
-                                        <TableCell className="py-4">
-                                            <div>
-                                                <div className="font-medium text-gray-900">{row.patientName}</div>
-                                                <div className="text-sm text-gray-500">{row.patientInfo}</div>
+                                        <TableCell className="py-4 min-w-[200px]">
+                                            <div className="flex flex-row items-center gap-2">
+                                                <div className="w-10 h-10">
+                                                    <img src={row.patientImage} alt={row.patientName} className="w-full h-full rounded-full bg-[#F5F5F7]" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-gray-900">{row.patientName}</div>
+                                                    <div className="text-sm text-gray-500">{row.patientInfo}</div>
+                                                </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="py-4 text-gray-700">{row.formType}</TableCell>
-                                        <TableCell className="py-4 text-gray-700">{row.lastUpdated}</TableCell>
-                                        <TableCell className="py-4">
+                                        <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
+                                        <TableCell className="py-4 text-gray-700 min-w-[150px]">{row.lastUpdated}</TableCell>
+                                        <TableCell className="py-4 min-w-[100px]">
                                             <StatusBadge status={row.status} />
                                         </TableCell>
-                                        <TableCell className="py-4">
+                                        <TableCell className="py-4 min-w-[100px] text-right">
                                             <ActionMenu rowId={row.id} goToEditPage={goToEditPage} goToPDFView={() => goToPDFView(row)} />
                                         </TableCell>
                                     </TableRow>
@@ -283,9 +292,9 @@ export default function RxFormTable() {
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
                                 className={cn(
-                                    "w-8 h-8 rounded-full text-sm font-medium transition-colors",
+                                    "w-8 h-8 !rounded-full text-sm font-medium transition-colors",
                                     currentPage === page
-                                        ? "bg-[#1e3a5f] text-white"
+                                        ? "!bg-[#1e3a5f] text-white"
                                         : "text-gray-700 hover:bg-gray-100"
                                 )}
                             >
@@ -328,9 +337,9 @@ export default function RxFormTable() {
                     <DialogHeader>
                         <DialogTitle className="text-left text-xl font-bold">Add Rx</DialogTitle>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4 py-4">
-                        <div>
+                        <div className="lg:w-[300px]">
                             <label className="text-sm text-gray-500 mb-2 block">
                                 Select Patient*
                             </label>
@@ -350,7 +359,7 @@ export default function RxFormTable() {
                                     />
                                     <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
-                                
+
                                 {isDropdownOpen && (filteredPatients.length > 0 || searchQuery === "") && (
                                     <div className="absolute z-50 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
                                         <div className="px-4 py-2 text-xs uppercase text-gray-500 font-medium border-b">
@@ -384,23 +393,24 @@ export default function RxFormTable() {
                         </div>
                     </div>
 
-                    <DialogFooter className="flex flex-row justify-between sm:justify-between">
+                    <DialogFooter className="flex flex-row justify-end sm:justify-end">
                         <Button
-                            variant="outline"
+                            variant="secondary"
                             onClick={() => {
                                 setIsDialogOpen(false);
                                 setSelectedPatient(null);
                                 setSearchQuery("");
                                 setIsDropdownOpen(false);
                             }}
-                            className="bg-white text-gray-700"
+                            className=" !p-5 !rounded-full"
                         >
                             Cancel
                         </Button>
                         <Button
+                            variant="default"
                             onClick={handleAddPatient}
                             disabled={!selectedPatient}
-                            className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white"
+                            className="text-white !p-5 !rounded-full"
                         >
                             Add
                         </Button>

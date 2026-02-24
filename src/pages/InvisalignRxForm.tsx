@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarIcon, ChevronDown, FileIcon } from "lucide-react";
+import { CalendarIcon, ChevronDown, FileIcon, X } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
     Select,
@@ -201,13 +201,13 @@ function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: 
     return (
         <div className="bottom-6 right-6 z-50 flex justify-between">
             <div>
-                <Button
+                {/* <Button
                     onClick={onGeneratePDF}
                     className="!bg-[#efefef] !hover:bg-[#2a4a6f] !text-[#030C21] !shadow-lg !outline-none !rounded-full !h-12 !p-2 !pl-4 !pr-4"
                 >
                     Generate PDF
                     <FileIcon className="w-4 h-4 ml-2" />
-                </Button>
+                </Button> */}
             </div>
             <div className="relative">
                 <Button
@@ -253,7 +253,7 @@ function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: 
 const initialFormData = {
     firstName: "",
     lastName: "",
-    appointmentDate: "",
+    appointmentDate: new Date(),
     appointmentType: "",
     type: "",
     iprAtAligner: "",
@@ -320,6 +320,10 @@ export default function InvisalignRxForm() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleDateChange = (date: Date | null) => {
+        setFormData((prev) => ({ ...prev, appointmentDate: date || new Date() }));
+    };
+
     const handleToothSelect = (chartType: "nonEnamel" | "lingual" | "button", toothId: string) => {
         if (chartType === "nonEnamel") {
             setNonEnamelTeeth((prev) => {
@@ -361,7 +365,7 @@ export default function InvisalignRxForm() {
             nonEnamelTeeth: Array.from(nonEnamelTeeth),
             lingualTeeth: Array.from(lingualTeeth),
             buttonTeeth: Array.from(buttonTeeth),
-            
+
         };
         try {
             window.localStorage.setItem(key, JSON.stringify(payload));
@@ -405,11 +409,11 @@ export default function InvisalignRxForm() {
         <div className="min-h-screen lg:p-6 p-2">
             <div className="max-w-5xl mx-auto">
                 {/* Close Button */}
-                {/* <div className="flex justify-end mb-4">
+                <div className="flex justify-end mb-4">
                     <button className="p-2 hover:bg-gray-200 rounded-full transition-colors" onClick={() => navigate("/")}>
                         <X className="w-5 h-5 text-gray-600" />
                     </button>
-                </div> */}
+                </div>
                 <h2 className="text-[2.2rem] font-bold text-gray-900 mb-8">Invisalign Rx Form</h2>
 
                 {/* Form Card */}
@@ -455,28 +459,16 @@ export default function InvisalignRxForm() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-1">
-                                        <Calendar mode="single" selected={date} onSelect={setDate} 
+                                        <Calendar mode="single" selected={date}
+                                            required
+                                            onSelect={(date: Date) => {
+                                                handleDateChange(date)
+                                                setDate(date)
+                                            }}
                                         />
                                     </PopoverContent>
                                 </Popover>
-                                {/* <Input
-                                    type="text"
-                                    value={formData.appointmentDate}
-                                    onChange={(e) => {
-                                        let value = e.target.value.replace(/\D/g, '');
-                                        if (value.length >= 2) {
-                                            value = value.slice(0, 2) + '-' + value.slice(2);
-                                        }
-                                        if (value.length >= 5) {
-                                            value = value.slice(0, 5) + '-' + value.slice(5, 9);
-                                        }
-                                        handleInputChange("appointmentDate", value);
-                                    }}
-                                    placeholder="MM-DD-YYYY"
-                                    maxLength={10}
-                                    className="pr-10 h-10"
-                                />
-                                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" /> */}
+
                             </div>
                         </div>
                         <div>

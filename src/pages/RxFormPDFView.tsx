@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 interface FormData {
     firstName: string;
     lastName: string;
-    appointmentDate: string;
+    appointmentDate: Date | null;
     appointmentType: string;
     type: string;
     iprAtAligner: string;
@@ -132,10 +132,10 @@ export default function RxFormPDFView() {
     const printRef = useRef<HTMLDivElement>(null);
 
     const defaultFormData: FormData = {
-        firstName: "Megan",
-        lastName: "Smith",
-        appointmentDate: "06-14-2025",
-        appointmentType: "STInv",
+        firstName: "",
+        lastName: "",
+        appointmentDate: null,
+        appointmentType: "",
         type: "",
         iprAtAligner: "",
         leftElastic: "",
@@ -183,7 +183,6 @@ export default function RxFormPDFView() {
         (storedPayload && storedPayload.formData) ||
         storedPayload ||
         defaultFormData;
-
     const stateNonEnamel = state && state.nonEnamelTeeth;
     const hasStateNonEnamel = !!stateNonEnamel && stateNonEnamel.length > 0;
 
@@ -277,7 +276,7 @@ export default function RxFormPDFView() {
                                 Appointment Date*
                             </label>
                             <div className="text-base text-gray-900 font-medium print:text-sm">
-                                {formData.appointmentDate || "-"}
+                                {formData?.appointmentDate?.toDateString() || "-"}
                             </div>
                         </div>
                         <div>
