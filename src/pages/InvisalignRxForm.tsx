@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarIcon, ChevronDown, FileIcon, X } from "lucide-react";
+import { CalendarIcon, ChevronDown,  X } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
     Select,
@@ -195,7 +195,7 @@ function DentalChartSelection({
 //     );
 // }
 
-function ActionMenu({ onGeneratePDF, onApprove, onSaveDraft }: { onGeneratePDF: () => void; onApprove: () => void; onSaveDraft: () => void }) {
+function ActionMenu({  onApprove, onSaveDraft }: { onGeneratePDF: () => void; onApprove: () => void; onSaveDraft: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

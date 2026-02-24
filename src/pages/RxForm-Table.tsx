@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { PlusIcon, Search, Filter, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, FilterIcon, SlidersIcon, SlidersHorizontalIcon } from "lucide-react";
+import { PlusIcon, Search, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, SlidersHorizontalIcon } from "lucide-react";
 import { Table, TableRow, TableBody, TableHeader, TableHead, TableCell } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
