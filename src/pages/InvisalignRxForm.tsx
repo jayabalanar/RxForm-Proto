@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { X, Calendar, ChevronDown, FileIcon } from "lucide-react";
+import {  Calendar, ChevronDown, FileIcon } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
     Select,
@@ -386,11 +386,11 @@ export default function InvisalignRxForm() {
         <div className="min-h-screen lg:p-6 p-2">
             <div className="max-w-5xl mx-auto">
                 {/* Close Button */}
-                <div className="flex justify-end mb-4">
+                {/* <div className="flex justify-end mb-4">
                     <button className="p-2 hover:bg-gray-200 rounded-full transition-colors" onClick={() => navigate("/")}>
                         <X className="w-5 h-5 text-gray-600" />
                     </button>
-                </div>
+                </div> */}
                 <h2 className="text-[2.2rem] font-bold text-gray-900 mb-8">Invisalign Rx Form</h2>
 
                 {/* Form Card */}

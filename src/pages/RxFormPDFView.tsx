@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router";
-import { X, Printer } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import { useEffect, useRef } from "react";
@@ -199,9 +199,6 @@ export default function RxFormPDFView() {
         (storedPayload && Array.isArray(storedPayload.lingualTeeth) ? storedPayload.lingualTeeth : [])
     );
 
-    const handlePrint = () => {
-        window.print();
-    };
 
     useEffect(() => {
         // Auto-print when component mounts (optional)
