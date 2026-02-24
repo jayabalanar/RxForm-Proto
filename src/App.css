@@ -195,6 +195,10 @@
   }
 }
 
+#isView svg {
+  height: 2rem;
+  width: 0.9rem;
+}
 
 @media (min-width: 320px) and (max-width: 339px) {
 
@@ -230,7 +234,7 @@
   #mob-border {
     margin: 6px 0px;
     position: relative;
-    top: -3px !important
+    top: 1px !important
   }
   .br-tooth,
   .bl-tooth {
@@ -322,7 +326,11 @@
     height: 2.5rem;
   }
 }
-
+ @media (max-width: 640px) {
+  #isView .ul-tooth {
+    height: 3.2rem;
+  }
+ }
 /* @media (min-width: 641px) and (max-width: 768px) {
 
   .ur-tooth svg,
@@ -334,10 +342,6 @@
   }
 } */
 
-#isView svg {
-  height: 2rem;
-  width: 1.1rem;
-}
 
 @keyframes logo-spin {
   from {

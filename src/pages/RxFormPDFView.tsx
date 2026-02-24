@@ -221,13 +221,13 @@ export default function RxFormPDFView() {
                         <X className="w-4 h-4" />
                         Close
                     </Button>
-                    <Button
+                    {/* <Button
                         onClick={handlePrint}
                         className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white flex items-center gap-2"
                     >
                         <Printer className="w-4 h-4" />
                         Print / Save as PDF
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 
@@ -240,6 +240,7 @@ export default function RxFormPDFView() {
                     maxWidth: "210mm",
                     minHeight: "297mm",
                     margin: "0 auto",
+                    padding: "10px"
                 }}
             >
                 <h2 className="text-2xl font-bold text-gray-900 mb-8 print:mb-6">Invisalign Rx Form</h2>
