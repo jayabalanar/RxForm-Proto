@@ -336,7 +336,7 @@ export default function RxFormTable() {
     };
 
     return (
-        <div className="min-h-screen min-w-screen bg-[#FAFAFB]">
+        <div className="min-h-screen bg-[#FAFAFB]">
             <div className="max-w-7xl mx-auto p-2 pl-2 pr-2 lg:p-5 lg:pl-10 lg:pr-10">
                 {/* Header with Add Rx button */}
                 <Header
