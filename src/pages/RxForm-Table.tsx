@@ -411,7 +411,7 @@ export default function RxFormTable() {
                                                         <img src={row.patientImage} alt={row.patientName} className="w-full h-full rounded-full bg-[#F5F5F7]" />
                                                     </div>
                                                     <div>
-                                                        <div className="font-medium text-gray-900">{row.firstName + row.lastName}</div>
+                                                        <div className="font-medium text-gray-900">{row.firstName + " " + row.lastName}</div>
                                                         <div className="text-sm text-gray-500">{row.Gender} {row.Age}</div>
                                                     </div>
                                                 </div>
