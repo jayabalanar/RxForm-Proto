@@ -246,7 +246,7 @@ export default function RxFormPDFView() {
                     </Button> */}
                     <Button
                         onClick={handlePrint}
-                        className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white flex items-center gap-2 !pl-3 !p-3"
+                        className="!bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white flex items-center gap-2 !pl-3 !p-3"
                     >
                         <Printer className="w-4 h-4" />
                         Print / Save as PDF

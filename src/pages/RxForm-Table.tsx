@@ -80,7 +80,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                 <PopoverContent className="w-50 p-0" align="end">
                     <Button
                         variant="ghost"
-                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        className="!bg-white w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                         onClick={() => {
                             setIsOpen(false);
                             goToPDFView();
@@ -91,7 +91,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        className="!bg-white w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                         onClick={() => {
                             setIsOpen(false);
                             goToEditPage();
@@ -102,7 +102,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        className="!bg-white w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
                         onClick={() => setIsOpen(false)}
                     >
                         <Copy className="w-4 h-4" />
@@ -461,7 +461,7 @@ export default function RxFormTable() {
                                     key={page}
                                     onClick={() => setCurrentPage(page as number)}
                                     className={cn(
-                                        "w-8 h-8 rounded-full text-sm font-medium transition-colors",
+                                        "!bg-[#1e3a5f] w-8 h-8 rounded-full text-sm font-medium transition-colors",
                                         currentPage === page
                                             ? "bg-[#1e3a5f] text-white"
                                             : "text-gray-700 hover:bg-gray-100"
@@ -583,7 +583,7 @@ export default function RxFormTable() {
                             variant="default"
                             onClick={handleAddPatient}
                             disabled={!selectedPatient}
-                            className="text-white !p-5 !rounded-full"
+                            className="!bg-[#1e3a5f] text-white !p-5 !rounded-full"
                         >
                             Add
                         </Button>
