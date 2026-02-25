@@ -408,20 +408,20 @@ export default function InvisalignRxForm() {
         }
     };
 
-    const saveFormToLocalStorage = (status: "Draft" | "Approved") => {
-        const key = status === "Draft" ? "invisalignRxFormDraft" : "invisalignRxFormApproved";
-        const payload = {
-            formData,
-            nonEnamelTeeth: Array.from(nonEnamelTeeth),
-            lingualTeeth: Array.from(lingualTeeth),
-            buttonTeeth: Array.from(buttonTeeth),
+    // const saveFormToLocalStorage = (status: "Draft" | "Approved") => {
+    //     const key = status === "Draft" ? "invisalignRxFormDraft" : "invisalignRxFormApproved";
+    //     const payload = {
+    //         formData,
+    //         nonEnamelTeeth: Array.from(nonEnamelTeeth),
+    //         lingualTeeth: Array.from(lingualTeeth),
+    //         buttonTeeth: Array.from(buttonTeeth),
 
-        };
-        try {
-            window.localStorage.setItem(key, JSON.stringify(payload));
-        } catch (error) {
-        }
-    };
+    //     };
+    //     try {
+    //         window.localStorage.setItem(key, JSON.stringify(payload));
+    //     } catch (error) {
+    //     }
+    // };
 
     const handleGeneratePDF = () => {
         navigate("/rx-form/pdf", {
@@ -478,19 +478,19 @@ export default function InvisalignRxForm() {
         setToastMessage("Form approved and saved");
     }
 
-    const handleApprove = () => {
-        // saveFormToLocalStorage("Approved");
-        // saveFormToLocalStorage("Draft");
-        clearForm();
-        setToastMessage("Form approved and saved");
-    };
+    // const handleApprove = () => {
+    //     // saveFormToLocalStorage("Approved");
+    //     // saveFormToLocalStorage("Draft");
+    //     clearForm();
+    //     setToastMessage("Form approved and saved");
+    // };
 
-    const handleSaveDraft = () => {
-        // saveFormToLocalStorage("Approved");
-        // saveFormToLocalStorage("Draft");
-        clearForm();
-        setToastMessage("Draft saved");
-    };
+    // const handleSaveDraft = () => {
+    //     // saveFormToLocalStorage("Approved");
+    //     // saveFormToLocalStorage("Draft");
+    //     clearForm();
+    //     setToastMessage("Draft saved");
+    // };
 
     return (
         <div className="min-h-screen lg:p-6 p-2">

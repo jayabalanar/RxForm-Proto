@@ -47,15 +47,6 @@ interface RxFormData {
     status: string
 }
 
-
-interface Patient {
-    id: number;
-    name: string;
-    email: string;
-    initials: string;
-}
-
-
 function StatusBadge({ status }: { status: "Approved" | "Draft" }) {
     return (
         <span
@@ -307,7 +298,7 @@ export default function RxFormTable() {
         }
         const result = savedPresData.json()
         result.then((res) => {
-
+            console.log(res)
             setIsDialogOpen(false);
             setSelectedPatient(null);
             setSearchQuery("");
