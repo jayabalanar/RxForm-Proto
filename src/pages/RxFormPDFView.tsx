@@ -1,5 +1,5 @@
-import { useNavigate, useLocation } from "react-router";
-import { Printer, X } from "lucide-react";
+import {  useLocation } from "react-router";
+import { Printer} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import { useEffect, useRef } from "react";
@@ -130,7 +130,6 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
 }
 
 export default function RxFormPDFView() {
-    const navigate = useNavigate();
     const location = useLocation();
     const printRef = useRef<HTMLDivElement>(null);
 
