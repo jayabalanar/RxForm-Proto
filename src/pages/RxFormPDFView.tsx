@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router";
-import { X } from "lucide-react";
+import { Printer, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import { useEffect, useRef } from "react";
@@ -160,9 +160,10 @@ export default function RxFormPDFView() {
 
     let storedPayload: any = null;
     try {
+        const tablePayload = window.sessionStorage.getItem("rxFormPdfPayload") ?? window.localStorage.getItem("rxFormPdfPayload");
         const approved = window.localStorage.getItem("invisalignRxFormApproved");
         const draft = window.localStorage.getItem("invisalignRxFormDraft");
-        const raw = approved ?? draft;
+        const raw = tablePayload ?? approved ?? draft;
         if (raw) {
             storedPayload = JSON.parse(raw);
         }
@@ -184,11 +185,19 @@ export default function RxFormPDFView() {
         stateFormData &&
         Object.values(stateFormData).some((value) => value !== undefined && String(value).trim() !== "");
 
-    const formData: FormData =
+    let formData: FormData =
         (hasStateFormData ? stateFormData : undefined) ||
         (storedPayload && storedPayload.formData) ||
         storedPayload ||
         defaultFormData;
+
+    // Ensure appointmentDate is a Date instance when coming from storage
+    if (formData && formData.appointmentDate && typeof formData.appointmentDate === "string") {
+        formData = {
+            ...formData,
+            appointmentDate: new Date(formData.appointmentDate),
+        };
+    }
     const stateNonEnamel = formData && formData?.nonEnamelTeeth;
     const hasStateNonEnamel = !!stateNonEnamel && stateNonEnamel.length > 0;
 
@@ -213,11 +222,13 @@ export default function RxFormPDFView() {
         (storedPayload && Array.isArray(storedPayload.buttonTeeth) ? storedPayload.buttonTeeth : [])
     );
 
-
+    const handlePrint = () => {
+        window.print()
+    }
 
     useEffect(() => {
         // Auto-print when component mounts (optional)
-        // window.print();
+        window.print();
     }, []);
 
     return (
@@ -225,21 +236,22 @@ export default function RxFormPDFView() {
             {/* Print Controls - Hidden when printing */}
             <div className="max-w-5xl mx-auto mb-4 print:hidden">
                 <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow">
-                    <Button
+                    <div></div>
+                    {/* <Button
                         variant="outline"
                         onClick={() => navigate(-1)}
                         className="flex items-center gap-2"
                     >
                         <X className="w-4 h-4" />
                         Close
-                    </Button>
-                    {/* <Button
+                    </Button> */}
+                    <Button
                         onClick={handlePrint}
-                        className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white flex items-center gap-2"
+                        className="bg-[#1e3a5f] hover:bg-[#2a4a6f] text-white flex items-center gap-2 !pl-3 !p-3"
                     >
                         <Printer className="w-4 h-4" />
                         Print / Save as PDF
-                    </Button> */}
+                    </Button>
                 </div>
             </div>
 

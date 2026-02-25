@@ -67,51 +67,48 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
 
     return (
         <div className="relative">
-            <Popover>
-                <PopoverTrigger
-                    children={
-                        <div
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="p-1 hover:bg-gray-100 rounded"
-                        >
-                            <MoreVertical className="w-4 h-4 text-gray-600" />
-                        </div>
-                    } />
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+                <PopoverTrigger asChild>
+                    <button
+                        type="button"
+                        className="p-1 hover:bg-gray-100 rounded"
+                    >
+                        <MoreVertical className="w-4 h-4 text-gray-600" />
+                    </button>
+                </PopoverTrigger>
 
-                {isOpen && (
-                    <PopoverContent className="w-50 p-0" align="end">
-                        <Button
-                            variant="ghost"
-                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
-                            onClick={() => {
-                                setIsOpen(false);
-                                goToPDFView();
-                            }}
-                        >
-                            <Eye className="w-4 h-4" />
-                            View PDF
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
-                            onClick={() => {
-                                setIsOpen(false);
-                                goToEditPage();
-                            }}
-                        >
-                            <Pencil className="w-4 h-4" />
-                            Edit
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <Copy className="w-4 h-4" />
-                            Copy Link
-                        </Button>
-                    </PopoverContent>
-                )}
+                <PopoverContent className="w-50 p-0" align="end">
+                    <Button
+                        variant="ghost"
+                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        onClick={() => {
+                            setIsOpen(false);
+                            goToPDFView();
+                        }}
+                    >
+                        <Eye className="w-4 h-4" />
+                        View PDF
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        onClick={() => {
+                            setIsOpen(false);
+                            goToEditPage();
+                        }}
+                    >
+                        <Pencil className="w-4 h-4" />
+                        Edit
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <Copy className="w-4 h-4" />
+                        Copy Link
+                    </Button>
+                </PopoverContent>
             </Popover>
         </div>
     );
@@ -122,6 +119,7 @@ export default function RxFormTable() {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [tableSearchQuery, setTableSearchQuery] = useState("");
     const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
@@ -132,7 +130,19 @@ export default function RxFormTable() {
     const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     const itemsPerPage = 10
-    const totalPages = Math.ceil(patientData?.length / itemsPerPage);
+    const filteredTableData = useMemo(() => {
+        if (!patientData) return [];
+        const query = tableSearchQuery.trim().toLowerCase();
+        if (!query) return patientData;
+
+        return patientData.filter((row: any) => {
+            const fullName = `${row.firstName ?? ""} ${row.lastName ?? ""}`.toLowerCase();
+            const formType = (row.formType ?? "").toLowerCase();
+            return fullName.includes(query) || formType.includes(query);
+        });
+    }, [patientData, tableSearchQuery]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredTableData.length / itemsPerPage));
 
     useEffect(() => {
         if (!toastMessage) {
@@ -147,9 +157,13 @@ export default function RxFormTable() {
     }, [toastMessage]);
 
     const paginatedData = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage
-        return patientData?.slice(start, start + itemsPerPage)
-    }, [patientData, currentPage])
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredTableData.slice(start, start + itemsPerPage);
+    }, [filteredTableData, currentPage]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [tableSearchQuery]);
 
     const getPageNumbers = () => {
         const pages: (number | string)[] = [];
@@ -179,6 +193,7 @@ export default function RxFormTable() {
 
         return pages;
     };
+
     useEffect(() => {
         const fetchPatients = async () => {
             const resData = await fetch("https://rxform-proto-backend.onrender.com/get-patient", {
@@ -232,22 +247,39 @@ export default function RxFormTable() {
     };
 
     const goToPDFView = (rowData?: RxFormData) => {
-        // Create form data from row data or use default values
+        if (!rowData) return;
 
         const formData = {
-            ...rowData?.form_data,
-            appointmentDate: new Date(rowData?.form_data?.appointmentDate),
-            firstName: (`${rowData?.firstName} + ${rowData?.lastName}`).split(" ")[0] || "",
-            lastName: (`${rowData?.firstName} + ${rowData?.lastName}`).split(" ").slice(1).join(" ") || "",
+            ...rowData.form_data,
+            appointmentDate: rowData.form_data?.appointmentDate
+                ? new Date(rowData.form_data.appointmentDate)
+                : null,
+            firstName: (`${rowData.firstName} ${rowData.lastName}`).split(" ")[0] || "",
+            lastName: (`${rowData.firstName} ${rowData.lastName}`).split(" ").slice(1).join(" ") || "",
         };
 
-        navigate("/rx-form/pdf", { state: { formData } });
+        const payload = { formData };
+
+        try {
+            // Store in both sessionStorage (current tab) and localStorage (for the new tab)
+            window.sessionStorage.setItem("rxFormPdfPayload", JSON.stringify(payload));
+            window.localStorage.setItem("rxFormPdfPayload", JSON.stringify(payload));
+        } catch (error) {
+            console.error("Failed to store PDF payload", error);
+        }
+
+        // Open PDF view in a new tab
+        window.open("/rx-form/pdf", "_blank", "noopener,noreferrer");
     };
 
-    const filteredPatients = patientData != undefined ? patientData?.filter(
-        (patient: any) =>
-            (patient.firstName + patient.lastName).toLowerCase().includes(searchQuery.toLowerCase())
-    ) : null;
+    const filteredPatients = patientData
+        ? patientData.filter(
+            (patient: any) =>
+                (patient.firstName + patient.lastName)
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+        )
+        : [];
     const fetchPatients = async () => {
         const resData = await fetch("https://rxform-proto-backend.onrender.com/get-patient", {
             method: "GET",
@@ -347,6 +379,8 @@ export default function RxFormTable() {
                                 type="text"
                                 placeholder="Search"
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={tableSearchQuery}
+                                onChange={(e) => setTableSearchQuery(e.target.value)}
                             />
                         </div>
                         <Button variant="secondary" className="!bg-[#F5F5F7] !border-[#EBECEE] flex items-center gap-2 !rounded-full w-[100px] border border-gray-300">
@@ -383,7 +417,9 @@ export default function RxFormTable() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
-                                            <TableCell className="py-4 text-gray-700 min-w-[150px]">{row.lastUpdated || "-"}</TableCell>
+                                            <TableCell className="py-4 text-gray-700 min-w-[150px]">
+                                                {new Date(row?.lastUpdatedAt).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) || "-"}
+                                            </TableCell>
                                             <TableCell className="py-4 min-w-[100px]">
                                                 <StatusBadge status={row.status} />
                                             </TableCell>
