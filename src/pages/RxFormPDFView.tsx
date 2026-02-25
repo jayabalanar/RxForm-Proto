@@ -23,6 +23,9 @@ interface FormData {
     virtualCheckAt: string;
     scanAt: string;
     nextScan: string;
+    buttonTeeth: []
+    lingualTeeth: []
+    nonEnamelTeeth: []
 }
 
 function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth?: Set<string> }) {
@@ -34,8 +37,8 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
                 {title}
             </label>
             <div className="relative overflow-x-auto">
-                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row lg:border-b">
-                    <div className="border-r pr-1 sm:mb-5">
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row h-[4.1rem]">
+                    <div className="border-r pr-1 sm:mb-1">
                         <div className="text-xs text-gray-500 font-medium text-right">Upper Right</div>
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex gap-1 lg:h-[3rem] md:h-[3.5rem] sm:h-[3.5rem] h-[1.2rem] ur-tooth">
@@ -75,13 +78,13 @@ function DentalChartPDF({ title, selectedTeeth }: { title: string; selectedTeeth
                     </div>
                 </div>
                 <div
-                    className="h-[1px] w-full bg-gray-100 lg:hidden"
+                    className="h-[1px] w-full bg-gray-100"
                     style={{
                         position: "relative",
-                        top: "-8px",
+                        top: "-6px",
                     }}
                 ></div>
-                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row">
+                <div className="space-y-6 min-w-max flex lg:flex-row md:flex-row h-[4.7rem]">
                     <div className="border-r pr-1 sm:mb-6">
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex gap-1 lg:h-[3.5rem] md:h-[4rem] sm:h-[3.2rem] h-[1.4rem] br-tooth">
@@ -150,6 +153,9 @@ export default function RxFormPDFView() {
         virtualCheckAt: "",
         scanAt: "",
         nextScan: "",
+        buttonTeeth: [],
+        lingualTeeth: [],
+        nonEnamelTeeth: [],
     };
 
     let storedPayload: any = null;
@@ -183,7 +189,7 @@ export default function RxFormPDFView() {
         (storedPayload && storedPayload.formData) ||
         storedPayload ||
         defaultFormData;
-    const stateNonEnamel = state && state.nonEnamelTeeth;
+    const stateNonEnamel = formData && formData?.nonEnamelTeeth;
     const hasStateNonEnamel = !!stateNonEnamel && stateNonEnamel.length > 0;
 
     const nonEnamelTeeth = new Set<string>(
@@ -191,7 +197,7 @@ export default function RxFormPDFView() {
         (storedPayload && Array.isArray(storedPayload.nonEnamelTeeth) ? storedPayload.nonEnamelTeeth : [])
     );
 
-    const stateLingual = state && state.lingualTeeth;
+    const stateLingual = formData && formData?.lingualTeeth;
     const hasStateLingual = !!stateLingual && stateLingual.length > 0;
 
     const lingualTeeth = new Set<string>(
@@ -199,7 +205,7 @@ export default function RxFormPDFView() {
         (storedPayload && Array.isArray(storedPayload.lingualTeeth) ? storedPayload.lingualTeeth : [])
     );
 
-    const stateButton = state && state.buttonTeeth;
+    const stateButton = formData && formData?.buttonTeeth;
     const hasStateButton = !!stateButton && stateButton.length > 0;
 
     const buttonTeeth = new Set<string>(
@@ -246,44 +252,44 @@ export default function RxFormPDFView() {
                     maxWidth: "210mm",
                     minHeight: "297mm",
                     margin: "0 auto",
-                    padding: "10px"
+                    padding: "10px 25px"
                 }}
             >
                 <h2 className="text-2xl font-bold text-gray-900 mb-8 print:mb-6">Invisalign Rx Form</h2>
 
                 {/* Patient Information Section */}
-                <div className="mb-8 print:mb-6 text-left">
+                <div className="mb-4 print:mb-6 text-left">
                     <h2 className="text-lg font-bold text-gray-900 mb-4 print:mb-3">Patient information:</h2>
-                    <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4 print:gap-1">
+                    <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-2 gap-4 print:gap-1">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 First Name*
                             </label>
-                            <div className="text-base text-gray-900 font-medium print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.firstName || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Last Name*
                             </label>
-                            <div className="text-base text-gray-900 font-medium print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.lastName || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Appointment Date*
                             </label>
-                            <div className="text-base text-gray-900 font-medium print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData?.appointmentDate?.toDateString() || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Appointment Type*
                             </label>
-                            <div className="text-base text-gray-900 font-medium print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.appointmentType || "-"}
                             </div>
                         </div>
@@ -291,135 +297,145 @@ export default function RxFormPDFView() {
                 </div>
 
                 {/* Case Review Details Section */}
-                <div className="mb-8 print:mb-6 text-left">
+                <div className="mb-4 print:mb-6 text-left">
                     <h2 className="text-lg font-bold text-gray-900 mb-4 print:mb-3">Case Review Details</h2>
 
                     {/* General Details */}
-                    <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-2 mb-6 print:mb-4 print:gap-2 row-gap-6" style={{
-                        rowGap: "20px"
+                    <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-2 gap-2 mb-6 print:mb-4 print:gap-2 row-gap-6" style={{
+                        rowGap: "10px"
                     }}>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Type
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.type || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Wear Schedule
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.wearSchedule || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 IPR @ Aligner
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.iprAtAligner || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Pontic
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.pontic || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Left Elastic
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.leftElastic || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Right Elastic
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.rightElastic || "-"}
                             </div>
                         </div>
                     </div>
 
                     {/* Dental Charts */}
-                    <div className="grid lg:grid-cols-2 md:grid-cols-1 print:grid-cols-2 sm:grid-cols-1 gap-6 mb-6 print:gap-1" id="isView">
+                    <div className="grid lg:grid-cols-2 md:grid-cols-1 sm:grid-cols-1 gap-2 print:grid-cols-2" id="isView" style={{
+                        rowGap: "0px"
+                    }}>
+                        {/* <div className="grid lg:grid-cols-2 md:grid-cols-1 print:grid-cols-2 sm:grid-cols-1 gap-2 print:mb-0 print:gap-1" id="isView"> */}
                         <DentalChartPDF title="Non Enamel" selectedTeeth={nonEnamelTeeth} />
                         <DentalChartPDF title="Lingual" selectedTeeth={lingualTeeth} />
                         <DentalChartPDF title="Button" selectedTeeth={buttonTeeth} />
                     </div>
 
                     {/* Additional Information */}
-                    <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-2 print:gap-2 row-gap-6" style={{
-                        rowGap: "20px"
+                    <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-2 gap-2 print:gap-2 row-gap-6" style={{
+                        rowGap: "10px"
                     }}>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Aligner Modifications
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.alignerModifications || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Hold @
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.holdAt || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Additional Notes
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.additionalNotes || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 In Office Appt
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.inOfficeAppt || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Appointment changed
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.appointmentChanged || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Virtual Check @
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.virtualCheckAt || "-"}
                             </div>
                         </div>
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+
+                        <div>
+
+                        </div>
+                        <div>
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Scan @
                             </label>
-                            <div className="text-base text-gray-900 whitespace-pre-wrap print:text-sm ">
+                            <div className="text-base font-semibold whitespace-pre-wrap print:text-sm ">
                                 {formData.scanAt || "-"}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1 print:text-xs">
+
+                        </div>
+                        <div>
+                            <label className="block text-sm text-[#3E485F] mb-1 print:text-xs">
                                 Next Scan
                             </label>
-                            <div className="text-base text-gray-900 print:text-sm">
+                            <div className="text-base font-semibold print:text-sm">
                                 {formData.nextScan || "-"}
                             </div>
                         </div>
@@ -458,6 +474,9 @@ export default function RxFormPDFView() {
                     }
                     .print\\:mb-3 {
                         margin-bottom: 0.75rem !important;
+                    }
+                    .print\\:mb-0 {
+                        margin-bottom: 0px !important;
                     }
                     .print\\:gap-3 {
                         gap: 0.75rem !important;

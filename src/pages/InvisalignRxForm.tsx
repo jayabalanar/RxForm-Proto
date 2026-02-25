@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarIcon, ChevronDown,  X } from "lucide-react";
+import { CalendarIcon, ChevronDown, X } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
     Select,
@@ -10,7 +10,7 @@ import {
 } from "../components/ui/select";
 import { format } from "date-fns"
 import { Button } from "../components/ui/button";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import RxFormOptions from "../data/RxFormOptions.json";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import React from "react";
@@ -195,7 +195,7 @@ function DentalChartSelection({
 //     );
 // }
 
-function ActionMenu({  onApprove, onSaveDraft }: { onGeneratePDF: () => void; onApprove: () => void; onSaveDraft: () => void }) {
+function ActionMenu({ onApprove, onSaveDraft }: { onGeneratePDF: () => void; onApprove: () => void; onSaveDraft: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -273,7 +273,10 @@ const initialFormData = {
 
 export default function InvisalignRxForm() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(initialFormData);
+    const [formData, setFormData] = useState<any>(initialFormData);
+    const location = useLocation()
+
+    const pathData = location.state
 
     const options = useMemo(() => RxFormOptions, []);
 
@@ -282,7 +285,8 @@ export default function InvisalignRxForm() {
     const [buttonTeeth, setButtonTeeth] = useState<Set<string>>(new Set());
 
     const [toastMessage, setToastMessage] = useState<string | null>(null);
-    const [date, setDate] = React.useState<Date>()
+    const [date, setDate] = React.useState<Date | undefined>(undefined)
+
     useEffect(() => {
         if (!toastMessage) {
             return;
@@ -296,32 +300,78 @@ export default function InvisalignRxForm() {
     }, [toastMessage]);
 
     useEffect(() => {
+        if (!pathData) return;
+
+        const source: any = (pathData as any).form_data ?? pathData;
+
+        if (source && typeof source === "object") {
+            const merged = { ...initialFormData, ...source };
+            setFormData(merged);
+
+            if (merged.appointmentDate) {
+                const d = new Date(merged.appointmentDate);
+                if (!isNaN(d.getTime())) {
+                    setDate(d);
+                }
+            }
+        }
+
+        const srcNonEnamel = (source as any).nonEnamelTeeth ?? (pathData as any).nonEnamelTeeth;
+        const srcLingual = (source as any).lingualTeeth ?? (pathData as any).lingualTeeth;
+        const srcButton = (source as any).buttonTeeth ?? (pathData as any).buttonTeeth;
+
+        if (Array.isArray(srcNonEnamel)) {
+            setNonEnamelTeeth(new Set(srcNonEnamel));
+        }
+
+        if (Array.isArray(srcLingual)) {
+            setLingualTeeth(new Set(srcLingual));
+        }
+
+        if (Array.isArray(srcButton)) {
+            setButtonTeeth(new Set(srcButton));
+        }
+
+    }, [pathData]);
+
+    useEffect(() => {
+        console.log(formData);
+        console.log(pathData);
+
+    }, [formData, pathData])
+
+    useEffect(() => {
+        if (pathData) return;
+
         try {
             const storedDraft = window.localStorage.getItem("invisalignRxFormDraft");
             if (storedDraft) {
                 const parsed = JSON.parse(storedDraft);
                 if (parsed && typeof parsed === "object" && "formData" in parsed) {
-                    setFormData((prev) => ({ ...prev, ...(parsed.formData as typeof prev) }));
+                    setFormData((prev: any) => ({ ...prev, ...(parsed.formData as typeof prev) }));
                     if (Array.isArray(parsed.nonEnamelTeeth)) {
                         setNonEnamelTeeth(new Set<string>(parsed.nonEnamelTeeth));
                     }
                     if (Array.isArray(parsed.lingualTeeth)) {
                         setLingualTeeth(new Set<string>(parsed.lingualTeeth));
                     }
+                    if (Array.isArray(parsed.buttonTeeth)) {
+                        setButtonTeeth(new Set<string>(parsed.buttonTeeth));
+                    }
                 } else {
-                    setFormData((prev) => ({ ...prev, ...parsed }));
+                    setFormData((prev: any) => ({ ...prev, ...parsed }));
                 }
             }
         } catch (error) {
         }
-    }, []);
+    }, [pathData]);
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
+        setFormData((prev: any) => ({ ...prev, [field]: value }));
     };
 
     const handleDateChange = (date: Date | null) => {
-        setFormData((prev) => ({ ...prev, appointmentDate: date || new Date() }));
+        setFormData((prev: any) => ({ ...prev, appointmentDate: date || new Date() }));
     };
 
     const handleToothSelect = (chartType: "nonEnamel" | "lingual" | "button", toothId: string) => {
@@ -391,16 +441,53 @@ export default function InvisalignRxForm() {
         setButtonTeeth(new Set());
     };
 
+    const savePresToDb = async (type: string) => {
+        let tempGend = ["Male", "Female"]
+        let tempFormData = {
+            ...formData,
+            nonEnamelTeeth: Array.from(nonEnamelTeeth),
+            lingualTeeth: Array.from(lingualTeeth),
+            buttonTeeth: Array.from(buttonTeeth),
+            email: formData.firstName + formData.lastName + "@gmail.com",
+            patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
+            Gender: tempGend[Math.floor(Math.random() * 2)],
+            Age: Math.floor(Math.random() * 100),
+            formType: "InvisAlign Rx Form",
+            lastUpdatedAt: new Date().toISOString(),
+            status: type == "approve" ? "Approved" : "Draft",
+            formId: pathData?.form_id ?? null
+        }
+        let sendFormData = {
+            formData: tempFormData
+        }
+
+        const savedPresData = await fetch("https://rxform-proto-backend.onrender.com/post-prescription", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(sendFormData)
+        })
+        if (!savedPresData.ok) {
+            throw new Error("Error Occurred")
+        }
+        const result = savedPresData.json()
+
+        console.log(result);
+        clearForm();
+        setToastMessage("Form approved and saved");
+    }
+
     const handleApprove = () => {
-        saveFormToLocalStorage("Approved");
-        saveFormToLocalStorage("Draft");
+        // saveFormToLocalStorage("Approved");
+        // saveFormToLocalStorage("Draft");
         clearForm();
         setToastMessage("Form approved and saved");
     };
 
     const handleSaveDraft = () => {
-        saveFormToLocalStorage("Approved");
-        saveFormToLocalStorage("Draft");
+        // saveFormToLocalStorage("Approved");
+        // saveFormToLocalStorage("Draft");
         clearForm();
         setToastMessage("Draft saved");
     };
@@ -428,7 +515,7 @@ export default function InvisalignRxForm() {
                                 First Name*
                             </label>
                             <Input
-                                value={formData.firstName}
+                                value={formData?.firstName}
                                 onChange={(e) => handleInputChange("firstName", e.target.value)}
 
                             />
@@ -438,7 +525,7 @@ export default function InvisalignRxForm() {
                                 Last Name*
                             </label>
                             <Input
-                                value={formData.lastName}
+                                value={formData?.lastName}
                                 onChange={(e) => handleInputChange("lastName", e.target.value)}
                             />
                         </div>
@@ -476,7 +563,7 @@ export default function InvisalignRxForm() {
                                 Appointment Type*
                             </label>
                             <Select
-                                value={formData.appointmentType}
+                                value={formData?.appointmentType}
                                 onValueChange={(value) => handleInputChange("appointmentType", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -506,7 +593,7 @@ export default function InvisalignRxForm() {
                                 Type
                             </label>
                             <Select
-                                value={formData.type}
+                                value={formData?.type}
                                 onValueChange={(value) => handleInputChange("type", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -526,7 +613,7 @@ export default function InvisalignRxForm() {
                                 Wear Schedule
                             </label>
                             <Select
-                                value={formData.wearSchedule}
+                                value={formData?.wearSchedule}
                                 onValueChange={(value) => handleInputChange("wearSchedule", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -546,7 +633,7 @@ export default function InvisalignRxForm() {
                                 IPR @ Aligner
                             </label>
                             <Input
-                                value={formData.iprAtAligner}
+                                value={formData?.iprAtAligner}
                                 onChange={(e) => handleInputChange("iprAtAligner", e.target.value)}
                             />
                         </div>
@@ -555,7 +642,7 @@ export default function InvisalignRxForm() {
                                 Pontic
                             </label>
                             <Input
-                                value={formData.pontic}
+                                value={formData?.pontic}
                                 onChange={(e) => handleInputChange("pontic", e.target.value)}
                             />
                         </div>
@@ -564,7 +651,7 @@ export default function InvisalignRxForm() {
                                 Left Elastic
                             </label>
                             <Select
-                                value={formData.leftElastic}
+                                value={formData?.leftElastic}
                                 onValueChange={(value) => handleInputChange("leftElastic", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -584,7 +671,7 @@ export default function InvisalignRxForm() {
                                 Right Elastic
                             </label>
                             <Select
-                                value={formData.rightElastic}
+                                value={formData?.rightElastic}
                                 onValueChange={(value) => handleInputChange("rightElastic", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -627,7 +714,7 @@ export default function InvisalignRxForm() {
                                 Aligner Modifications
                             </label>
                             <Input
-                                value={formData.alignerModifications}
+                                value={formData?.alignerModifications}
                                 onChange={(e) => handleInputChange("alignerModifications", e.target.value)}
                             />
                         </div>
@@ -636,7 +723,7 @@ export default function InvisalignRxForm() {
                                 Hold @
                             </label>
                             <Input
-                                value={formData.holdAt}
+                                value={formData?.holdAt}
                                 onChange={(e) => handleInputChange("holdAt", e.target.value)}
                             />
                         </div>
@@ -645,7 +732,7 @@ export default function InvisalignRxForm() {
                                 Additional Notes
                             </label>
                             <Input
-                                value={formData.additionalNotes}
+                                value={formData?.additionalNotes}
                                 onChange={(e) => handleInputChange("additionalNotes", e.target.value)}
                             />
                         </div>
@@ -654,7 +741,7 @@ export default function InvisalignRxForm() {
                                 In Office Appt
                             </label>
                             <Input
-                                value={formData.inOfficeAppt}
+                                value={formData?.inOfficeAppt}
                                 onChange={(e) => handleInputChange("inOfficeAppt", e.target.value)}
                             />
                         </div>
@@ -663,7 +750,7 @@ export default function InvisalignRxForm() {
                                 Appointment changed
                             </label>
                             <Select
-                                value={formData.appointmentChanged}
+                                value={formData?.appointmentChanged}
                                 onValueChange={(value) => handleInputChange("appointmentChanged", value)}
                             >
                                 <SelectTrigger className="w-full !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none">
@@ -681,7 +768,7 @@ export default function InvisalignRxForm() {
                             </label>
 
                             <Input
-                                value={formData.virtualCheckAt}
+                                value={formData?.virtualCheckAt}
                                 onChange={(e) => handleInputChange("virtualCheckAt", e.target.value)}
                             />
                         </div>
@@ -697,7 +784,7 @@ export default function InvisalignRxForm() {
                                 Scan @
                             </label>
                             <Input
-                                value={formData.scanAt}
+                                value={formData?.scanAt}
                                 onChange={(e) => handleInputChange("scanAt", e.target.value)}
                             />
 
@@ -714,7 +801,7 @@ export default function InvisalignRxForm() {
                                 Next Scan
                             </label>
                             <Input
-                                value={formData.nextScan}
+                                value={formData?.nextScan}
                                 onChange={(e) => handleInputChange("nextScan", e.target.value)}
 
                             />
@@ -725,8 +812,8 @@ export default function InvisalignRxForm() {
 
                 <ActionMenu
                     onGeneratePDF={handleGeneratePDF}
-                    onApprove={handleApprove}
-                    onSaveDraft={handleSaveDraft}
+                    onApprove={() => savePresToDb("approve")}
+                    onSaveDraft={() => savePresToDb("draft")}
                 />
                 {toastMessage && (
                     <div className="fixed bottom-24 right-6 z-50 rounded-md bg-gray-900 text-white px-4 py-2 shadow-lg text-sm">

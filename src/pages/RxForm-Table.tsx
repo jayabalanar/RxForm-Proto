@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { PlusIcon, Search, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, SlidersHorizontalIcon } from "lucide-react";
 import { Table, TableRow, TableBody, TableHeader, TableHead, TableCell } from "../components/ui/table";
 import { Button } from "../components/ui/button";
@@ -12,27 +12,41 @@ import {
     DialogFooter,
 } from "../components/ui/dialog";
 import { useNavigate } from "react-router";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 
 interface RxFormData {
     id: number;
-    patientImage: string;
-    patientName: string;
-    patientInfo: string;
-    formType: string;
-    lastUpdated: string;
-    status: "Approved" | "Draft";
+    firstName: string
+    lastName: string
+    form_data: any
+    appointmentDate: string
+    appointmentType: string
+    type: string
+    iprAtAligner: string
+    leftElastic: string
+    wearSchedule: string
+    pontic: string
+    rightElastic: string
+    alignerModifications: string
+    additionalNotes: string
+    appointmentChanged: string
+    holdAt: string
+    inOfficeAppt: string
+    virtualCheckAt: string
+    scanAt: string
+    nextScan: string
+    nonEnamelTeeth: string[]
+    lingualTeeth: string[]
+    buttonTeeth: string[]
+    patientImage: string
+    Gender: string
+    Age: number
+    formType: string
+    lastUpdatedAt: string
+    status: string
 }
 
-const mockData: RxFormData[] = [
-    { id: 1, patientImage: "https://randomuser.me/api/portraits/men/1.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 2, patientImage: "https://randomuser.me/api/portraits/men/2.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 3, patientImage: "https://randomuser.me/api/portraits/men/3.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 4, patientImage: "https://randomuser.me/api/portraits/men/4.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 5, patientImage: "https://randomuser.me/api/portraits/men/5.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 6, patientImage: "https://randomuser.me/api/portraits/men/6.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-    { id: 7, patientImage: "https://randomuser.me/api/portraits/men/7.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Draft" },
-    { id: 8, patientImage: "https://randomuser.me/api/portraits/men/8.jpg", patientName: "Carl S Griffith", patientInfo: "Female • 45", formType: "Invisalign Rx form", lastUpdated: "03-23-2025", status: "Approved" },
-];
 
 interface Patient {
     id: number;
@@ -41,16 +55,6 @@ interface Patient {
     initials: string;
 }
 
-const mockPatients: Patient[] = [
-    { id: 1, name: "Megan Smith", email: "megan.smith@gmail.com", initials: "MS" },
-    { id: 2, name: "Carl S Driffith", email: "carl.driffith@gmail.com", initials: "CD" },
-    { id: 3, name: "Carl Smith", email: "carl.smith@gmail.com", initials: "CS" },
-    { id: 4, name: "Carley Molly", email: "carl.molly@gmail.com", initials: "CM" },
-    { id: 5, name: "Carl Grif", email: "carl.grif@gmail.com", initials: "CG" },
-    { id: 6, name: "John Fisher", email: "john.fisher@gmail.com", initials: "JF" },
-    { id: 7, name: "Sarah Johnson", email: "sarah.johnson@gmail.com", initials: "SJ" },
-    { id: 8, name: "Michael Brown", email: "michael.brown@gmail.com", initials: "MB" },
-];
 
 function StatusBadge({ status }: { status: "Approved" | "Draft" }) {
     return (
@@ -72,19 +76,19 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
 
     return (
         <div className="relative">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-1 hover:bg-gray-100 rounded"
-            >
-                <MoreVertical className="w-4 h-4 text-gray-600" />
-            </button>
-            {isOpen && (
-                <>
-                    <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setIsOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+            <Popover>
+                <PopoverTrigger
+                    children={
+                        <div
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                        >
+                            <MoreVertical className="w-4 h-4 text-gray-600" />
+                        </div>
+                    } />
+
+                {isOpen && (
+                    <PopoverContent className="w-50 p-0" align="end">
                         <Button
                             variant="ghost"
                             className="w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
@@ -115,24 +119,98 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                             <Copy className="w-4 h-4" />
                             Copy Link
                         </Button>
-                    </div>
-                </>
-            )}
+                    </PopoverContent>
+                )}
+            </Popover>
         </div>
     );
 }
 
 export default function RxFormTable() {
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 10;
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const navigate = useNavigate();
+    const [patientData, setPatientData] = useState<any>()
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+    const itemsPerPage = 10
+    const totalPages = Math.ceil(patientData?.length / itemsPerPage);
+
+    useEffect(() => {
+        if (!toastMessage) {
+            return;
+        }
+        const id = setTimeout(() => {
+            setToastMessage(null);
+        }, 3000);
+        return () => {
+            clearTimeout(id);
+        };
+    }, [toastMessage]);
+
+    const paginatedData = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage
+        return patientData?.slice(start, start + itemsPerPage)
+    }, [patientData, currentPage])
+
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+
+        pages.push(1);
+
+        if (currentPage > 3) {
+            pages.push("...");
+        }
+
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        if (currentPage < totalPages - 2) {
+            pages.push("...");
+        }
+
+        pages.push(totalPages);
+
+        return pages;
+    };
+    useEffect(() => {
+        const fetchPatients = async () => {
+            const resData = await fetch("https://rxform-proto-backend.onrender.com/get-patient", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            if (!resData.ok) {
+                throw new Error("No Data Found")
+            }
+            const result = resData.json()
+            result.then((res) => {
+                console.log(res);
+                setPatientData(res.data)
+            })
+                .catch((err) => {
+                    console.log(err);
+                })
+
+        }
+        fetchPatients()
+    }, [])
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -156,56 +234,104 @@ export default function RxFormTable() {
         };
     }, [isDropdownOpen]);
 
-    const goToEditPage = () => {
-        navigate("/rx-form/edit");
+    const goToEditPage = (row: any) => {
+        navigate("/rx-form/edit", {
+            state: row
+        });
     };
 
     const goToPDFView = (rowData?: RxFormData) => {
         // Create form data from row data or use default values
+
         const formData = {
-            firstName: rowData?.patientName.split(" ")[0] || "",
-            lastName: rowData?.patientName.split(" ").slice(1).join(" ") || "",
-            appointmentDate: null,
-            appointmentType: "",
-            type: "",
-            iprAtAligner: "",
-            leftElastic: "",
-            wearSchedule: "",
-            pontic: "",
-            rightElastic: "",
-            alignerModifications: "",
-            additionalNotes: "",
-            appointmentChanged: "",
-            holdAt: "",
-            inOfficeAppt: "",
-            virtualCheckAt: "",
-            scanAt: "",
-            nextScan: "",
+            ...rowData?.form_data,
+            appointmentDate: new Date(rowData?.form_data?.appointmentDate),
+            firstName: (`${rowData?.firstName} + ${rowData?.lastName}`).split(" ")[0] || "",
+            lastName: (`${rowData?.firstName} + ${rowData?.lastName}`).split(" ").slice(1).join(" ") || "",
         };
 
         navigate("/rx-form/pdf", { state: { formData } });
     };
 
-    const filteredPatients = mockPatients.filter(
-        (patient) =>
-            patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            patient.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredPatients = patientData != undefined ? patientData?.filter(
+        (patient: any) =>
+            (patient.firstName + patient.lastName).toLowerCase().includes(searchQuery.toLowerCase())
+    ) : null;
+    const fetchPatients = async () => {
+        const resData = await fetch("https://rxform-proto-backend.onrender.com/get-patient", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        if (!resData.ok) {
+            throw new Error("No Data Found")
+        }
+        const result = resData.json()
+        result.then((res) => {
+            console.log(res);
+            setPatientData(res.data)
+        })
+            .catch((err) => {
+                console.log(err);
+            })
 
-    const handleAddPatient = () => {
-        if (selectedPatient) {
-            // Add logic to add patient to table here
-            console.log("Adding patient:", selectedPatient);
+    }
+    const savePresToDb = async (type: string) => {
+        let tempGend = ["Male", "Female"]
+        let tempFormData = {
+            firstName: selectedPatient?.firstName,
+            lastName: selectedPatient?.lastName,
+            email: selectedPatient?.firstName + selectedPatient?.lastName + "@gmail.com",
+            patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
+            Gender: tempGend[Math.floor(Math.random() * 2)],
+            Age: Math.floor(Math.random() * 100),
+            formType: "InvisAlign Rx Form",
+            lastUpdatedAt: new Date().toISOString(),
+            status: type == "approve" ? "Approved" : "Draft",
+            formId: null
+        }
+        let sendFormData = {
+            formData: tempFormData
+        }
+
+        const savedPresData = await fetch("https://rxform-proto-backend.onrender.com/post-prescription", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(sendFormData)
+        })
+        if (!savedPresData.ok) {
+            throw new Error("Error Occurred")
+        }
+        const result = savedPresData.json()
+        result.then((res) => {
+
             setIsDialogOpen(false);
             setSelectedPatient(null);
             setSearchQuery("");
             setIsDropdownOpen(false);
+            fetchPatients()
+        })
+            .catch((err) => {
+                console.log(err);
+            })
+        console.log(result);
+        setToastMessage("Form approved and saved");
+    }
+
+    const handleAddPatient = () => {
+        if (selectedPatient) {
+
+            savePresToDb("draft")
+
         }
     };
 
-    const handlePatientSelect = (patient: Patient) => {
+    const handlePatientSelect = (patient: any) => {
         setSelectedPatient(patient);
-        setSearchQuery(patient.name);
+        setSearchQuery(patient.firstName + patient.lastName);
         setIsDropdownOpen(false);
     };
 
@@ -215,7 +341,7 @@ export default function RxFormTable() {
                 {/* Header with Add Rx button */}
                 <Header
                     pageTitle="RxForm"
-                    btnLbl="Add RxForm"
+                    btnLbl="Add Rx"
                     btnIcon={PlusIcon}
                     onButtonClick={() => setIsDialogOpen(true)}
                 />
@@ -223,7 +349,7 @@ export default function RxFormTable() {
                 {/* White card container */}
                 <div className="bg-white rounded-lg shadow-lg p-6">
                     {/* Search and Filter */}
-                    <div className="flex items-center gap-4 mb-6">
+                    <div className="flex items-center justify-between gap-4 mb-6">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
@@ -251,72 +377,81 @@ export default function RxFormTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {mockData.map((row) => (
-                                    <TableRow key={row.id} className="border-b hover:bg-gray-50">
-                                        <TableCell className="py-4 min-w-[200px]">
-                                            <div className="flex flex-row items-center gap-2">
-                                                <div className="w-10 h-10">
-                                                    <img src={row.patientImage} alt={row.patientName} className="w-full h-full rounded-full bg-[#F5F5F7]" />
+                                {paginatedData && paginatedData?.length > 0
+                                    ? paginatedData?.map((row: any) => (
+                                        <TableRow key={row.id} className="border-b hover:bg-gray-50">
+                                            <TableCell className="py-4 min-w-[200px]">
+                                                <div className="flex flex-row items-center gap-2">
+                                                    <div className="w-10 h-10">
+                                                        <img src={row.patientImage} alt={row.patientName} className="w-full h-full rounded-full bg-[#F5F5F7]" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-gray-900">{row.firstName + row.lastName}</div>
+                                                        <div className="text-sm text-gray-500">{row.Gender} {row.Age}</div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <div className="font-medium text-gray-900">{row.patientName}</div>
-                                                    <div className="text-sm text-gray-500">{row.patientInfo}</div>
-                                                </div>
-                                            </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
+                                            <TableCell className="py-4 text-gray-700 min-w-[150px]">{row.lastUpdated || "-"}</TableCell>
+                                            <TableCell className="py-4 min-w-[100px]">
+                                                <StatusBadge status={row.status} />
+                                            </TableCell>
+                                            <TableCell className="py-4 min-w-[100px] text-right">
+                                                <ActionMenu
+                                                    rowId={row.id} goToEditPage={() => goToEditPage(row)}
+                                                    goToPDFView={() => goToPDFView(row)} />
+                                            </TableCell>
+                                        </TableRow>
+                                    )) :
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-15 font-bold text-gray-600 text-xl text-center">
+                                            No Data Found.
                                         </TableCell>
-                                        <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
-                                        <TableCell className="py-4 text-gray-700 min-w-[150px]">{row.lastUpdated}</TableCell>
-                                        <TableCell className="py-4 min-w-[100px]">
-                                            <StatusBadge status={row.status} />
-                                        </TableCell>
-                                        <TableCell className="py-4 min-w-[100px] text-right">
-                                            <ActionMenu rowId={row.id} goToEditPage={goToEditPage} goToPDFView={() => goToPDFView(row)} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                    </TableRow>}
                             </TableBody>
                         </Table>
                     </div>
 
                     {/* Pagination */}
                     <div className="flex items-center justify-center gap-2 mt-6">
+                        {/* Previous */}
                         <button
-                            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        {[1, 2, 3].map((page) => (
-                            <button
-                                key={page}
-                                onClick={() => setCurrentPage(page)}
-                                className={cn(
-                                    "w-8 h-8 !rounded-full text-sm font-medium transition-colors",
-                                    currentPage === page
-                                        ? "!bg-[#1e3a5f] text-white"
-                                        : "text-gray-700 hover:bg-gray-100"
-                                )}
-                            >
-                                {page}
-                            </button>
-                        ))}
-                        <span className="px-2 text-gray-500">...</span>
+
+                        {/* Page Numbers */}
+                        {getPageNumbers().map((page, index) =>
+                            page === "..." ? (
+                                <span key={index} className="px-2 text-gray-500">
+                                    ...
+                                </span>
+                            ) : (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page as number)}
+                                    className={cn(
+                                        "w-8 h-8 rounded-full text-sm font-medium transition-colors",
+                                        currentPage === page
+                                            ? "bg-[#1e3a5f] text-white"
+                                            : "text-gray-700 hover:bg-gray-100"
+                                    )}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+
+                        {/* Next */}
                         <button
-                            onClick={() => setCurrentPage(10)}
-                            className={cn(
-                                "w-8 h-8 rounded-full text-sm font-medium transition-colors",
-                                currentPage === 10
-                                    ? "bg-[#1e3a5f] text-white"
-                                    : "text-gray-700 hover:bg-gray-100"
-                            )}
-                        >
-                            10
-                        </button>
-                        <button
-                            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                            onClick={() =>
+                                setCurrentPage((p) => Math.min(totalPages, p + 1))
+                            }
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>
@@ -365,7 +500,7 @@ export default function RxFormTable() {
                                         <div className="px-4 py-2 text-xs uppercase text-gray-500 font-medium border-b">
                                             SUGGESTIONS
                                         </div>
-                                        {(searchQuery === "" ? mockPatients : filteredPatients).map((patient, index) => (
+                                        {(searchQuery === "" ? patientData : filteredPatients).map((patient: any, index: any) => (
                                             <button
                                                 key={patient.id}
                                                 onClick={() => handlePatientSelect(patient)}
@@ -375,14 +510,21 @@ export default function RxFormTable() {
                                                 )}
                                             >
                                                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 flex-shrink-0">
-                                                    {patient.initials}
+                                                    <img className="w-full h-full rounded-lg" src={patient?.patientImage} />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-medium text-gray-900 truncate">
-                                                        {patient.name}
+                                                <div className="flex flex-col">
+                                                    <div className="flex-1 min-w-0">
+                                                        <span className="font-medium text-gray-900 truncate">
+                                                            {patient?.firstName}
+                                                        </span>
+                                                        <span className="text-medium text-gray-900 truncate">
+                                                            {patient?.lastName}
+                                                        </span>
                                                     </div>
-                                                    <div className="text-sm text-gray-500 truncate">
-                                                        {patient.email}
+                                                    <div className="flex-1 min-w-0">
+                                                        <span className="font-medium text-gray-500 text-sm truncate">
+                                                            {patient?.form_data?.email || "-"}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </button>
@@ -392,7 +534,11 @@ export default function RxFormTable() {
                             </div>
                         </div>
                     </div>
-
+                    {toastMessage && (
+                        <div className="fixed bottom-24 right-6 z-50 rounded-md bg-gray-900 text-white px-4 py-2 shadow-lg text-sm">
+                            {toastMessage}
+                        </div>
+                    )}
                     <DialogFooter className="flex flex-row justify-end sm:justify-end">
                         <Button
                             variant="secondary"
