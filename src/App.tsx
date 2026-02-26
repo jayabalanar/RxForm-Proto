@@ -12,6 +12,7 @@ function App() {
         <Routes>  
           <Route path="/" element={<RxFormTable />} />
           <Route path="/rx-form/edit" element={<InvisalignRxForm />} />
+          <Route path="/rx-form/add" element={<InvisalignRxForm />} />
           <Route path="/rx-form/pdf" element={<RxFormPDFView />} />
         </Routes>
       </BrowserRouter>

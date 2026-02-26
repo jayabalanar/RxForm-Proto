@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { PlusIcon, Search, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, SlidersHorizontalIcon } from "lucide-react";
+import { PlusIcon, Search, MoreVertical, Eye, Pencil, Copy, ChevronLeft, ChevronRight, SlidersHorizontalIcon, CalendarIcon } from "lucide-react";
 import { Table, TableRow, TableBody, TableHeader, TableHead, TableCell } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
@@ -13,6 +13,10 @@ import {
 } from "../components/ui/dialog";
 import { useNavigate } from "react-router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns"
 
 
 interface RxFormData {
@@ -77,7 +81,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
                     </button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-50 p-0" align="end">
+                <PopoverContent className="w-50 p-0 overflow-hidden" align="end">
                     <Button
                         variant="ghost"
                         className="!bg-white w-full !text-left !p-2 text-sm text-gray-700 hover:!bg-gray-100 flex items-center gap-2 justify-start !rounded-none"
@@ -124,11 +128,16 @@ export default function RxFormTable() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const [savingData, setSavingData] = useState(false);
 
     const navigate = useNavigate();
     const [patientData, setPatientData] = useState<any>()
     const [toastMessage, setToastMessage] = useState<string | null>(null);
-
+    const [formData, setFormData] = useState<any>({
+        firstName: "",
+        lastName: "",
+        dob: null,
+    });
     const itemsPerPage = 10
     const filteredTableData = useMemo(() => {
         if (!patientData) return [];
@@ -196,7 +205,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         const fetchPatients = async () => {
-            const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+            const resData = await fetch("http://localhost:3000/get-patient", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -281,7 +290,7 @@ export default function RxFormTable() {
         )
         : [];
     const fetchPatients = async () => {
-        const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+        const resData = await fetch("http://localhost:3000/get-patient", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -301,15 +310,17 @@ export default function RxFormTable() {
 
     }
     const savePresToDb = async (type: string) => {
+        setSavingData(true);
         let tempGend = ["Male", "Female"]
         let tempFormData = {
-            firstName: selectedPatient?.firstName,
-            lastName: selectedPatient?.lastName,
-            email: selectedPatient?.firstName + selectedPatient?.lastName + "@gmail.com",
+            firstName: selectedPatient?.firstName || formData?.firstName,
+            lastName: selectedPatient?.lastName || formData?.lastName,
+            dob: formData?.dob.toISOString(),
+            email: (selectedPatient?.firstName || formData?.firstName) + (selectedPatient?.lastName || formData?.lastName) + "@gmail.com",
             patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
             Gender: tempGend[Math.floor(Math.random() * 2)],
             Age: Math.floor(Math.random() * 100),
-            formType: "InvisAlign Rx Form",
+            formType: "Invisalign Rx Form",
             lastUpdatedAt: new Date().toISOString(),
             status: type == "approve" ? "Approved" : "Draft",
             formId: null
@@ -318,7 +329,7 @@ export default function RxFormTable() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
+        const savedPresData = await fetch("http://localhost:3000/post-prescription", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -336,20 +347,26 @@ export default function RxFormTable() {
             setSearchQuery("");
             setIsDropdownOpen(false);
             fetchPatients()
+
+            setToastMessage(type == "approve" ? "Approved" : "Saved as Draft");
+            setSavingData(false);
         })
             .catch((err) => {
                 console.log(err);
+                setSavingData(false);
+                setToastMessage("Error Occurred");
             })
-        console.log(result);
-        setToastMessage("Form approved and saved");
     }
 
     const handleAddPatient = () => {
         if (selectedPatient) {
-
             savePresToDb("draft")
-
+            return;
         }
+        if (!selectedPatient) {
+            savePresToDb("draft")
+        }
+
     };
 
     const handlePatientSelect = (patient: any) => {
@@ -357,6 +374,15 @@ export default function RxFormTable() {
         setSearchQuery(patient.firstName + patient.lastName);
         setIsDropdownOpen(false);
     };
+    const handleInputChange = (field: string, value: string) => {
+        setFormData({ ...formData, [field]: value });
+    };
+    const handleDateChange = (date: Date | null) => {
+        setFormData({ ...formData, dob: date });
+    };
+    const [date, setDate] = useState<Date | undefined>(undefined);
+
+
 
     return (
         <div className="min-h-screen bg-[#FAFAFB]">
@@ -408,7 +434,7 @@ export default function RxFormTable() {
                                             <TableCell className="py-4 min-w-[200px]">
                                                 <div className="flex flex-row items-center gap-2">
                                                     <div className="w-10 h-10">
-                                                        <img src={row.patientImage} alt={row.patientName} className="w-full h-full rounded-full bg-[#F5F5F7]" />
+                                                        <span className="text-sm text-gray-500 w-full h-full flex items-center justify-center rounded-full bg-[#F5F5F7]">{row.firstName.charAt(0) + row.lastName.charAt(0)}</span>
                                                     </div>
                                                     <div>
                                                         <div className="font-medium text-gray-900">{row.firstName + " " + row.lastName}</div>
@@ -464,7 +490,7 @@ export default function RxFormTable() {
                                         "!bg-[#1e3a5f] w-8 h-8 rounded-full text-sm font-medium transition-colors",
                                         currentPage === page
                                             ? "bg-[#1e3a5f] text-white"
-                                            : "text-gray-700 hover:bg-gray-100"
+                                            : "!bg-white text-gray-700 hover:bg-gray-100"
                                     )}
                                 >
                                     {page}
@@ -537,7 +563,7 @@ export default function RxFormTable() {
                                                 )}
                                             >
                                                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 flex-shrink-0">
-                                                    <img className="w-full h-full rounded-lg" src={patient?.patientImage} />
+                                                    <span className="text-sm text-gray-500 w-full h-full flex items-center justify-center rounded-full bg-[#F5F5F7]">{patient?.firstName.charAt(0) + patient?.lastName.charAt(0)}</span>
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <div className="flex-1 min-w-0">
@@ -549,7 +575,7 @@ export default function RxFormTable() {
                                                         </span>
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <span className="font-medium text-gray-500 text-sm truncate">
+                                                        <span className="font-medium text-gray-500 text-xs truncate">
                                                             {patient?.form_data?.email || "-"}
                                                         </span>
                                                     </div>
@@ -558,6 +584,61 @@ export default function RxFormTable() {
                                         ))}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                        <Separator />
+                        <div className="w-full">
+                            <label className="text-sm text-gray-500 mb-2 block">
+                                Add New Patient*
+                            </label>
+                            <div className="relative flex md:flex-row lg:flex-row flex-col gap-2">
+                                <div className="w-full lg:w-[50%]">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        First Name*
+                                    </label>
+                                    <Input
+                                        value={formData?.firstName}
+                                        onChange={(e) => handleInputChange("firstName", e.target.value)}
+                                    />
+                                </div>
+                                <div className="w-full lg:w-[50%]">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Last Name*
+                                    </label>
+                                    <Input
+                                        value={formData?.lastName}
+                                        onChange={(e) => handleInputChange("lastName", e.target.value)}
+                                    />
+                                </div>
+                                <div className="w-full lg:w-[50%]">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Date of Birth*
+                                    </label>
+                                    <div className="relative">
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    data-empty={!date}
+                                                    className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none"
+                                                >
+                                                    <CalendarIcon />
+                                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-1">
+                                                <Calendar mode="single" selected={date}
+                                                    required
+                                                    onSelect={(date: Date) => {
+                                                        handleDateChange(date)
+                                                        setDate(date)
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -581,8 +662,8 @@ export default function RxFormTable() {
                         </Button>
                         <Button
                             variant="default"
+                            disabled={savingData}
                             onClick={handleAddPatient}
-                            disabled={!selectedPatient}
                             className="!bg-[#1e3a5f] text-white !p-5 !rounded-full"
                         >
                             Add

@@ -440,6 +440,9 @@ export default function InvisalignRxForm() {
         setLingualTeeth(new Set());
         setButtonTeeth(new Set());
     };
+    const generateInitials = (firstName: string, lastName: string) => {
+        return firstName.charAt(0) + lastName.charAt(0);
+    }
 
     const savePresToDb = async (type: string) => {
         let tempGend = ["Male", "Female"]
@@ -449,10 +452,10 @@ export default function InvisalignRxForm() {
             lingualTeeth: Array.from(lingualTeeth),
             buttonTeeth: Array.from(buttonTeeth),
             email: formData.firstName + formData.lastName + "@gmail.com",
-            patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
+            patientImage: generateInitials(formData.firstName, formData.lastName),
             Gender: tempGend[Math.floor(Math.random() * 2)],
             Age: Math.floor(Math.random() * 100),
-            formType: "InvisAlign Rx Form",
+            formType: "Invisalign Rx Form",
             lastUpdatedAt: new Date().toISOString(),
             status: type == "approve" ? "Approved" : "Draft",
             formId: pathData?.form_id ?? null
@@ -461,7 +464,7 @@ export default function InvisalignRxForm() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
+        const savedPresData = await fetch("http://localhost:3000/post-prescription", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -475,7 +478,7 @@ export default function InvisalignRxForm() {
 
         console.log(result);
         clearForm();
-        setToastMessage("Form approved and saved");
+        setToastMessage(type == "approve" ? "Approved" : "Saved as Draft");
     }
 
     // const handleApprove = () => {
@@ -757,8 +760,8 @@ export default function InvisalignRxForm() {
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="yes">Yes</SelectItem>
-                                    <SelectItem value="no">No</SelectItem>
+                                    <SelectItem value="Yes">Yes</SelectItem>
+                                    <SelectItem value="No">No</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
