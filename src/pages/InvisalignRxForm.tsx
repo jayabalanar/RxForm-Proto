@@ -272,6 +272,7 @@ const initialFormData = {
 };
 
 export default function InvisalignRxForm() {
+    const backendURL = import.meta.env.VITE_BACKEND_URL || "https://rxform-production.up.railway.app"
     const navigate = useNavigate();
     const [formData, setFormData] = useState<any>(initialFormData);
     const location = useLocation()
@@ -286,7 +287,6 @@ export default function InvisalignRxForm() {
 
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [date, setDate] = React.useState<Date | undefined>(undefined)
-
     useEffect(() => {
         if (!toastMessage) {
             return;
@@ -464,7 +464,7 @@ export default function InvisalignRxForm() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/post-prescription`, {
+        const savedPresData = await fetch(`${backendURL}/post-prescription`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

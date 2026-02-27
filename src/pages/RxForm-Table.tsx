@@ -119,6 +119,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
 }
 
 export default function RxFormTable() {
+    const backendURL = import.meta.env.VITE_BACKEND_URL || "https://rxform-production.up.railway.app"
     const [currentPage, setCurrentPage] = useState(1);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -209,7 +210,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         const fetchPatients = async () => {
-            const resData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-patient`, {
+            const resData = await fetch(`${backendURL}/get-patient`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -294,7 +295,7 @@ export default function RxFormTable() {
         )
         : [];
     const fetchPatients = async () => {
-        const resData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-patient`, {
+        const resData = await fetch(`${backendURL}/get-patient`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -333,7 +334,7 @@ export default function RxFormTable() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/post-prescription`, {
+        const savedPresData = await fetch(`${backendURL}/post-prescription`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
