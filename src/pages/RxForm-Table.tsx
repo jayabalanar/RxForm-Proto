@@ -129,7 +129,11 @@ export default function RxFormTable() {
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const [savingData, setSavingData] = useState(false);
-
+    const [formError, setFormError] = useState<any>({
+        firstName: "",
+        lastName: "",
+        dob: null,
+    });
     const navigate = useNavigate();
     const [patientData, setPatientData] = useState<any>()
     const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -205,7 +209,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         const fetchPatients = async () => {
-            const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+            const resData = await fetch("http://localhost:3000/get-patient", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -290,7 +294,7 @@ export default function RxFormTable() {
         )
         : [];
     const fetchPatients = async () => {
-        const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+        const resData = await fetch("http://localhost:3000/get-patient", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -329,7 +333,7 @@ export default function RxFormTable() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
+        const savedPresData = await fetch("http://localhost:3000/post-prescription", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -337,6 +341,7 @@ export default function RxFormTable() {
             body: JSON.stringify(sendFormData)
         })
         if (!savedPresData.ok) {
+            setSavingData(false);
             throw new Error("Error Occurred")
         }
         const result = savedPresData.json()
@@ -347,9 +352,10 @@ export default function RxFormTable() {
             setSearchQuery("");
             setIsDropdownOpen(false);
             fetchPatients()
-
+            setFormData({ ...formData, firstName: "", lastName: "", dob: null });
             setToastMessage(type == "approve" ? "Approved" : "Saved as Draft");
             setSavingData(false);
+            setFormError({ ...formError, firstName: "", lastName: "", dob: null });
         })
             .catch((err) => {
                 console.log(err);
@@ -364,9 +370,21 @@ export default function RxFormTable() {
             return;
         }
         if (!selectedPatient) {
+            if (formData?.firstName === "" || formData?.firstName === null) {
+                setFormError({ ...formError, firstName: "Please enter a valid first name" });
+                return
+            }
+            if (formData?.lastName === "" || formData?.lastName === null) {
+                setFormError({ ...formError, lastName: "Please enter a valid last name" });
+                return
+            }
+            if (formData?.dob === null) {
+                setFormError({ ...formError, dob: "Please select a date" });
+                return
+            }
             savePresToDb("draft")
+            return;
         }
-
     };
 
     const handlePatientSelect = (patient: any) => {
@@ -376,9 +394,11 @@ export default function RxFormTable() {
     };
     const handleInputChange = (field: string, value: string) => {
         setFormData({ ...formData, [field]: value });
+        setFormError({ ...formError, [field]: "" });
     };
     const handleDateChange = (date: Date | null) => {
         setFormData({ ...formData, dob: date });
+        setFormError({ ...formError, dob: null });
     };
     const [date, setDate] = useState<Date | undefined>(undefined);
 
@@ -598,8 +618,16 @@ export default function RxFormTable() {
                                     </label>
                                     <Input
                                         value={formData?.firstName}
+                                        placeholder="Enter First Name"
+                                        required
                                         onChange={(e) => handleInputChange("firstName", e.target.value)}
                                     />
+                                  
+                                    {formError?.firstName != null && formError?.firstName != "" && (
+                                        <span className="text-xs text-red-500">
+                                            Please enter a valid first name
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="w-full lg:w-[50%]">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -607,8 +635,15 @@ export default function RxFormTable() {
                                     </label>
                                     <Input
                                         value={formData?.lastName}
+                                        placeholder="Enter Last Name"
+                                        required
                                         onChange={(e) => handleInputChange("lastName", e.target.value)}
                                     />
+                                    {formError?.lastName != null && formError?.lastName != "" && (
+                                        <span className="text-xs text-red-500">
+                                            Please enter a valid last name
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="w-full lg:w-[50%]">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -621,7 +656,7 @@ export default function RxFormTable() {
                                                     variant="outline"
                                                     data-empty={!date}
                                                     className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none"
-                                                >
+                                                >   
                                                     <CalendarIcon />
                                                     {date ? format(date, "PPP") : <span>Pick a date</span>}
                                                 </Button>
@@ -635,6 +670,11 @@ export default function RxFormTable() {
                                                     }}
                                                 />
                                             </PopoverContent>
+                                            {formError?.dob != null && formError?.dob != "" && (
+                                                <span className="text-xs text-red-500">
+                                                    Please select a date
+                                                </span>
+                                            )}
                                         </Popover>
 
                                     </div>

@@ -66,19 +66,19 @@
     "wearSchedule": [
         {
             "label": "5 Days",
-            "value": "5"
+            "value": "5 Days"
         },
         {
             "label": "7 Days",
-            "value": "7"
+            "value": "7 Days"
         },
         {
             "label": "10 Days",
-            "value": "10"
+            "value": "10 Days"
         },
         {
             "label": "14 Days",
-            "value": "14"
+            "value": "14 Days"
         }
     ],
     "rightElastic": [
