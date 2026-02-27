@@ -209,7 +209,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         const fetchPatients = async () => {
-            const resData = await fetch("http://localhost:3000/get-patient", {
+            const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -294,7 +294,7 @@ export default function RxFormTable() {
         )
         : [];
     const fetchPatients = async () => {
-        const resData = await fetch("http://localhost:3000/get-patient", {
+        const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -333,7 +333,7 @@ export default function RxFormTable() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("http://localhost:3000/post-prescription", {
+        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
