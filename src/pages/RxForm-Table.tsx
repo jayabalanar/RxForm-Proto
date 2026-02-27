@@ -209,7 +209,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         const fetchPatients = async () => {
-            const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+            const resData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-patient`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -294,7 +294,7 @@ export default function RxFormTable() {
         )
         : [];
     const fetchPatients = async () => {
-        const resData = await fetch("https://rxform-production.up.railway.app/get-patient", {
+        const resData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-patient`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -319,7 +319,7 @@ export default function RxFormTable() {
         let tempFormData = {
             firstName: selectedPatient?.firstName || formData?.firstName,
             lastName: selectedPatient?.lastName || formData?.lastName,
-            dob: formData?.dob.toISOString(),
+            dob: formData?.dob != null ? formData?.dob.toISOString() : null,
             email: (selectedPatient?.firstName || formData?.firstName) + (selectedPatient?.lastName || formData?.lastName) + "@gmail.com",
             patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
             Gender: tempGend[Math.floor(Math.random() * 2)],
@@ -333,7 +333,7 @@ export default function RxFormTable() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
+        const savedPresData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/post-prescription`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

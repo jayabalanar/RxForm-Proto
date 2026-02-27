@@ -464,7 +464,7 @@ export default function InvisalignRxForm() {
             formData: tempFormData
         }
 
-        const savedPresData = await fetch("https://rxform-production.up.railway.app/post-prescription", {
+        const savedPresData = await fetch(`${import.meta.env.VITE_BACKEND_URL}/post-prescription`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
