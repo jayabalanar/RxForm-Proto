@@ -1,5 +1,6 @@
-import {  useLocation } from "react-router";
-import { Printer} from "lucide-react";
+import { useLocation } from "react-router";
+import { Printer } from "lucide-react";
+import { parseDateSafe } from "../lib/dateUtils";
 import { Button } from "../components/ui/button";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import { useEffect, useRef } from "react";
@@ -190,11 +191,12 @@ export default function RxFormPDFView() {
         storedPayload ||
         defaultFormData;
 
-    // Ensure appointmentDate is a Date instance when coming from storage
-    if (formData && formData.appointmentDate && typeof formData.appointmentDate === "string") {
+    // Ensure appointmentDate is a Date instance when coming from storage (timezone-safe parse)
+    if (formData && formData.appointmentDate != null && typeof formData.appointmentDate === "string") {
+        const parsed = parseDateSafe(formData.appointmentDate);
         formData = {
             ...formData,
-            appointmentDate: new Date(formData.appointmentDate),
+            appointmentDate: parsed,
         };
     }
     const stateNonEnamel = formData && formData?.nonEnamelTeeth;

@@ -9,6 +9,7 @@ import {
     SelectValue,
 } from "../components/ui/select";
 import { format } from "date-fns"
+import { nowToISO, toISODateString, parseDateSafe } from "../lib/dateUtils"
 import { Button } from "../components/ui/button";
 import { useLocation, useNavigate } from "react-router";
 import RxFormOptions from "../data/RxFormOptions.json";
@@ -309,10 +310,8 @@ export default function InvisalignRxForm() {
             setFormData(merged);
 
             if (merged.appointmentDate) {
-                const d = new Date(merged.appointmentDate);
-                if (!isNaN(d.getTime())) {
-                    setDate(d);
-                }
+                const d = parseDateSafe(merged.appointmentDate);
+                if (d) setDate(d);
             }
         }
 
@@ -427,6 +426,7 @@ export default function InvisalignRxForm() {
         navigate("/rx-form/pdf", {
             state: {
                 formData,
+                appointmentDate: date ?? parseDateSafe(formData?.appointmentDate),
                 nonEnamelTeeth: Array.from(nonEnamelTeeth),
                 lingualTeeth: Array.from(lingualTeeth),
                 buttonTeeth: Array.from(buttonTeeth),
@@ -456,7 +456,9 @@ export default function InvisalignRxForm() {
             Gender: tempGend[Math.floor(Math.random() * 2)],
             Age: Math.floor(Math.random() * 100),
             formType: "Invisalign Rx Form",
-            lastUpdatedAt: new Date().toISOString(),
+            lastUpdatedAt: nowToISO(),
+            dob: toISODateString(formData.dob) ?? null,
+            appointmentDate: toISODateString(formData.appointmentDate) ?? null,
             status: type == "approve" ? "Approved" : "Draft",
             formId: pathData?.form_id ?? null
         }
@@ -555,6 +557,9 @@ export default function InvisalignRxForm() {
                                                 handleDateChange(date)
                                                 setDate(date)
                                             }}
+                                           disabled={{
+                                            before: new Date()
+                                           }} 
                                         />
                                     </PopoverContent>
                                 </Popover>

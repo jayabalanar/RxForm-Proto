@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"
+import { nowToISO, toISODateString, parseDateSafe } from "../lib/dateUtils"
 
 
 interface RxFormData {
@@ -266,7 +267,7 @@ export default function RxFormTable() {
         const formData = {
             ...rowData.form_data,
             appointmentDate: rowData.form_data?.appointmentDate
-                ? new Date(rowData.form_data.appointmentDate)
+                ? parseDateSafe(rowData.form_data.appointmentDate)
                 : null,
             firstName: (`${rowData.firstName} ${rowData.lastName}`).split(" ")[0] || "",
             lastName: (`${rowData.firstName} ${rowData.lastName}`).split(" ").slice(1).join(" ") || "",
@@ -320,13 +321,14 @@ export default function RxFormTable() {
         let tempFormData = {
             firstName: selectedPatient?.firstName || formData?.firstName,
             lastName: selectedPatient?.lastName || formData?.lastName,
-            dob: formData?.dob != null ? formData?.dob.toISOString() : null,
+            dob: toISODateString(formData?.dob) ?? null,
             email: (selectedPatient?.firstName || formData?.firstName) + (selectedPatient?.lastName || formData?.lastName) + "@gmail.com",
             patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
             Gender: tempGend[Math.floor(Math.random() * 2)],
             Age: Math.floor(Math.random() * 100),
             formType: "Invisalign Rx Form",
-            lastUpdatedAt: new Date().toISOString(),
+            lastUpdatedAt: nowToISO(),
+            appointmentDate: toISODateString(formData?.appointmentDate) ?? null,
             status: type == "approve" ? "Approved" : "Draft",
             formId: null
         }
@@ -465,7 +467,7 @@ export default function RxFormTable() {
                                             </TableCell>
                                             <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
                                             <TableCell className="py-4 text-gray-700 min-w-[150px]">
-                                                {new Date(row?.lastUpdatedAt).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) || "-"}
+                                                {(d => d ? format(d, "EEEE, MMMM d, yyyy") : "-")(parseDateSafe(row?.lastUpdatedAt))}
                                             </TableCell>
                                             <TableCell className="py-4 min-w-[100px]">
                                                 <StatusBadge status={row.status} />
