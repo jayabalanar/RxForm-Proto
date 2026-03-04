@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns"
 import { nowToISO, toISODateString, parseDateSafe } from "../lib/dateUtils"
-
+import { RxFormFilter, type RxFormFilterValues } from "./RxForm-Filter";
+import { v4 as uuidv4 } from 'uuid';
 
 interface RxFormData {
     id: number;
@@ -122,7 +123,7 @@ function ActionMenu({ rowId: _rowId, goToEditPage, goToPDFView }: { rowId: numbe
 export default function RxFormTable() {
     const backendURL = import.meta.env.VITE_BACKEND_URL || "https://rxform-production.up.railway.app"
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [tableSearchQuery, setTableSearchQuery] = useState("");
@@ -144,18 +145,64 @@ export default function RxFormTable() {
         lastName: "",
         dob: null,
     });
-    const itemsPerPage = 10
+    const itemsPerPage = 10;
+
+    const [appliedFilter, setAppliedFilter] = useState<RxFormFilterValues>({
+        patientId: null,
+        firstName: "",
+        lastName: "",
+        appointmentDate: null,
+        formType: "",
+        status: "",
+    });
+
+    const formTypes = useMemo(() => {
+        if (!patientData) return [];
+        const types = Array.from(
+            new Set((patientData as any[]).map((r: any) => r.formType).filter(Boolean))
+        ) as string[];
+        return types.sort();
+    }, [patientData]);
+
     const filteredTableData = useMemo(() => {
         if (!patientData) return [];
         const query = tableSearchQuery.trim().toLowerCase();
-        if (!query) return patientData;
+        let data = patientData as any[];
 
-        return patientData.filter((row: any) => {
-            const fullName = `${row.firstName ?? ""} ${row.lastName ?? ""}`.toLowerCase();
-            const formType = (row.formType ?? "").toLowerCase();
-            return fullName.includes(query) || formType.includes(query);
-        });
-    }, [patientData, tableSearchQuery]);
+        if (query) {
+            data = data.filter((row: any) => {
+                const fullName = `${row.firstName ?? ""} ${row.lastName ?? ""}`.toLowerCase();
+                const formType = (row.formType ?? "").toLowerCase();
+                return fullName.includes(query) || formType.includes(query);
+            });
+        }
+
+        if (appliedFilter.patientId != null && appliedFilter.patientId !== "") {
+            const pid = appliedFilter.patientId;
+            data = data.filter(
+                (row: any) =>
+                    String(row.patientId ?? row.id ?? row.form_id ?? "") === pid
+            );
+        }
+        if (appliedFilter.formType) {
+            data = data.filter((row: any) => (row.formType ?? "") === appliedFilter.formType);
+        }
+        if (appliedFilter.status) {
+            data = data.filter((row: any) => (row.status ?? "") === appliedFilter.status);
+        }
+        if (appliedFilter.appointmentDate) {
+            const filterDateStr = toISODateString(appliedFilter.appointmentDate);
+            if (filterDateStr) {
+                data = data.filter((row: any) => {
+                    const rowDate = row.appointmentDate ?? row.form_data?.appointmentDate;
+                    const rowDateStr = toISODateString(rowDate);
+                    return rowDateStr === filterDateStr;
+                });
+            }
+        }
+
+        return data;
+    }, [patientData, tableSearchQuery, appliedFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filteredTableData.length / itemsPerPage));
 
@@ -178,7 +225,7 @@ export default function RxFormTable() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [tableSearchQuery]);
+    }, [tableSearchQuery, appliedFilter]);
 
     const getPageNumbers = () => {
         const pages: (number | string)[] = [];
@@ -322,6 +369,7 @@ export default function RxFormTable() {
             firstName: selectedPatient?.firstName || formData?.firstName,
             lastName: selectedPatient?.lastName || formData?.lastName,
             dob: toISODateString(formData?.dob) ?? null,
+            patientId: selectedPatient?.patientId || uuidv4(),
             email: (selectedPatient?.firstName || formData?.firstName) + (selectedPatient?.lastName || formData?.lastName) + "@gmail.com",
             patientImage: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 20)}.jpg`,
             Gender: tempGend[Math.floor(Math.random() * 2)],
@@ -432,7 +480,11 @@ export default function RxFormTable() {
                                 onChange={(e) => setTableSearchQuery(e.target.value)}
                             />
                         </div>
-                        <Button variant="secondary" className="!bg-[#F5F5F7] !border-[#EBECEE] flex items-center gap-2 !rounded-full w-[100px] border border-gray-300">
+                        <Button
+                            variant="secondary"
+                            className="!bg-[#F5F5F7] !border-[#EBECEE] flex items-center gap-2 !rounded-full w-[100px] border border-gray-300"
+                            onClick={() => setIsFilterOpen(true)}
+                        >
                             <SlidersHorizontalIcon className="w-4 h-4" />
                             Filter
                         </Button>
@@ -625,7 +677,7 @@ export default function RxFormTable() {
                                         required
                                         onChange={(e) => handleInputChange("firstName", e.target.value)}
                                     />
-                                  
+
                                     {formError?.firstName != null && formError?.firstName != "" && (
                                         <span className="text-xs text-red-500">
                                             Please enter a valid first name
@@ -659,7 +711,7 @@ export default function RxFormTable() {
                                                     variant="outline"
                                                     data-empty={!date}
                                                     className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none"
-                                                >   
+                                                >
                                                     <CalendarIcon />
                                                     {date ? format(date, "PPP") : <span>Pick a date</span>}
                                                 </Button>
@@ -714,6 +766,24 @@ export default function RxFormTable() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <RxFormFilter
+                open={isFilterOpen}
+                onOpenChange={setIsFilterOpen}
+                patientData={patientData}
+                formTypes={formTypes}
+                values={appliedFilter}
+                onApply={(values) => setAppliedFilter(values)}
+                onReset={() =>
+                    setAppliedFilter({
+                        patientId: null,
+                        firstName: "",
+                        lastName: "",
+                        appointmentDate: null,
+                        formType: "",
+                        status: "",
+                    })
+                }
+            />
         </div>
     );
 }

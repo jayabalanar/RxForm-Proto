@@ -17,6 +17,7 @@ import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } fr
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar"
+import { v4 as uuidv4 } from 'uuid';
 
 // Dental Chart Selection Component
 function DentalChartSelection({
@@ -452,6 +453,7 @@ export default function InvisalignRxForm() {
             lingualTeeth: Array.from(lingualTeeth),
             buttonTeeth: Array.from(buttonTeeth),
             email: formData.firstName + formData.lastName + "@gmail.com",
+            patientId: pathData?.patient_id ?? uuidv4(),
             patientImage: generateInitials(formData.firstName, formData.lastName),
             Gender: tempGend[Math.floor(Math.random() * 2)],
             Age: Math.floor(Math.random() * 100),
@@ -478,9 +480,38 @@ export default function InvisalignRxForm() {
         }
         const result = savedPresData.json()
 
-        console.log(result);
-        clearForm();
-        setToastMessage(type == "approve" ? "Approved" : "Saved as Draft");
+        result.then(async (res) => {
+            console.log("res", res);
+            clearForm();
+            setToastMessage(type == "approve" ? "Approved" : "Saved as Draft");
+            if (type === "approve") {
+                const formId = res.data?.form_id ?? res.data?.form_data?.formId ?? null;
+                const toEmail = tempFormData.email || formData?.email;
+                console.log("formId", formId);
+                console.log("toEmail", toEmail);
+                try {
+                    let res = await fetch(`${backendURL}/send-form-email`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            to: toEmail,
+                            formId,
+                            firstName: formData?.firstName ?? tempFormData.firstName,
+                        }),
+                    });
+                    console.log("res", res);
+                    if (res && res.status == 200) {
+                        navigate("/")
+                    }
+                } catch (e) {
+                    console.error("Failed to send approval email", e);
+                }
+
+            }
+        }).catch((err) => {
+            console.log(err);
+            setToastMessage("Error Occurred");
+        })
     }
 
     // const handleApprove = () => {
@@ -557,9 +588,9 @@ export default function InvisalignRxForm() {
                                                 handleDateChange(date)
                                                 setDate(date)
                                             }}
-                                           disabled={{
-                                            before: new Date()
-                                           }} 
+                                            disabled={{
+                                                before: new Date()
+                                            }}
                                         />
                                     </PopoverContent>
                                 </Popover>
