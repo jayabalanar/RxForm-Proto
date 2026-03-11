@@ -147,7 +147,7 @@ export function RxFormFilter({
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {localValues.appointmentDate
-                                        ? format(localValues.appointmentDate, "PPP")
+                                        ? format(localValues.appointmentDate, "MM-dd-yyyy")
                                         : "Pick a date"}
                                 </Button>
                             </PopoverTrigger>
