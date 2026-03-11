@@ -497,7 +497,7 @@ export default function RxFormTable() {
                                 <TableRow className="border-b">
                                     <TableHead className="min-w-[200px]">Patient Name</TableHead>
                                     <TableHead className="min-w-[200px]">Form Type</TableHead>
-                                    <TableHead className="min-w-[150px]">Last Updated</TableHead>
+                                    <TableHead className="min-w-[150px]">Appointment Date</TableHead>
                                     <TableHead className="min-w-[100px]">Status</TableHead>
                                     <TableHead className="min-w-[100px] text-right">Action</TableHead>
                                 </TableRow>
@@ -519,7 +519,7 @@ export default function RxFormTable() {
                                             </TableCell>
                                             <TableCell className="py-4 text-gray-700 min-w-[200px]">{row.formType}</TableCell>
                                             <TableCell className="py-4 text-gray-700 min-w-[150px]">
-                                                {(d => d ? format(d, "EEEE, MMMM d, yyyy") : "-")(parseDateSafe(row?.lastUpdatedAt))}
+                                                {(d => d ? format(d, "MM-dd-yyyy") : "-")(parseDateSafe(row?.form_data?.appointmentDate))}
                                             </TableCell>
                                             <TableCell className="py-4 min-w-[100px]">
                                                 <StatusBadge status={row.status} />

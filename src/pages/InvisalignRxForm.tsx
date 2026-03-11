@@ -578,7 +578,7 @@ export default function InvisalignRxForm() {
                                             className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal !border-0 !border-b-2 !bg-[#F5F5F7] !border-[#b5b5b5] !h-10 !outline-none"
                                         >
                                             <CalendarIcon />
-                                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                            {date ? format(date, "MM-dd-yyyy") : <span>Pick a date</span>}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-1">

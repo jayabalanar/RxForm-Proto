@@ -4,6 +4,7 @@ import { parseDateSafe } from "../lib/dateUtils";
 import { Button } from "../components/ui/button";
 import { UpperRightTooth, UpperLeftTooth, BottomRightTooth, BottomLeftTooth } from "../components/tooth/tooth";
 import { useEffect, useRef } from "react";
+import { format } from "date-fns";
 
 interface FormData {
     firstName: string;
@@ -295,7 +296,7 @@ export default function RxFormPDFView() {
                                 Appointment Date*
                             </label>
                             <div className="text-base font-semibold print:text-sm">
-                                {formData?.appointmentDate?.toDateString() || "-"}
+                                {(d => d ? format(d, "MM-dd-yyyy") : "-")(parseDateSafe(formData?.appointmentDate))}
                             </div>
                         </div>
                         <div>
