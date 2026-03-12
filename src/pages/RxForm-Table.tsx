@@ -151,9 +151,16 @@ export default function RxFormTable() {
         patientId: null,
         firstName: "",
         lastName: "",
-        appointmentDate: null,
+        appointmentFromDate: null,
+        appointmentToDate: null,
         formType: "",
-        status: "",
+        status: [{
+            label: "New",
+            value: "New",
+        }, {
+            label: "Draft",
+            value: "Draft",
+        }],
     });
 
     const formTypes = useMemo(() => {
@@ -188,15 +195,23 @@ export default function RxFormTable() {
             data = data.filter((row: any) => (row.formType ?? "") === appliedFilter.formType);
         }
         if (appliedFilter.status) {
-            data = data.filter((row: any) => (row.status ?? "") === appliedFilter.status);
+            
+            data = data.filter((row: any) => appliedFilter.status.some((status: { value: string; label: string; }) => status.value === (row.status ?? "")));
         }
-        if (appliedFilter.appointmentDate) {
-            const filterDateStr = toISODateString(appliedFilter.appointmentDate);
-            if (filterDateStr) {
+        if (appliedFilter.appointmentFromDate && appliedFilter.appointmentToDate) {
+            const filterFromDateStr = toISODateString(appliedFilter.appointmentFromDate);
+            const filterToDateStr = toISODateString(appliedFilter.appointmentToDate);
+        
+            if (filterFromDateStr && filterToDateStr) {
                 data = data.filter((row: any) => {
-                    const rowDate = row.appointmentDate ?? row.form_data?.appointmentDate;
+                    const rowDate = row.form_data?.appointmentDate;
                     const rowDateStr = toISODateString(rowDate);
-                    return rowDateStr === filterDateStr;
+        
+                    return (
+                        rowDateStr &&
+                        rowDateStr >= filterFromDateStr &&
+                        rowDateStr <= filterToDateStr
+                    );
                 });
             }
         }
@@ -342,6 +357,12 @@ export default function RxFormTable() {
                     .includes(searchQuery.toLowerCase())
         )
         : [];
+
+    useEffect(() => {
+        console.log(filteredPatients);
+        
+    }, [filteredPatients]);
+
     const fetchPatients = async () => {
         const resData = await fetch(`${backendURL}/get-patient`, {
             method: "GET",
@@ -778,9 +799,16 @@ export default function RxFormTable() {
                         patientId: null,
                         firstName: "",
                         lastName: "",
-                        appointmentDate: null,
+                        appointmentFromDate: null,
+                        appointmentToDate: null,
                         formType: "",
-                        status: "",
+                        status: [{
+                            value: "New",
+                            label: "New"
+                        }, {
+                            value: "Draft",
+                            label: "Draft"
+                        }],
                     })
                 }
             />

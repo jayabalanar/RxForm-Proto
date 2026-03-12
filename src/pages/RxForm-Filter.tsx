@@ -17,18 +17,21 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, RefreshCcwIcon } from "lucide-react";
+import { CalendarIcon, CheckIcon, RefreshCcwIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export interface RxFormFilterValues {
     /** Row identifier: id, form_id, or patientId from API (stored as string for UUID support) */
     patientId: string | null;
     firstName: string;
     lastName: string;
-    appointmentDate: Date | null;
+    appointmentFromDate: Date | null;
+    appointmentToDate: Date | null;
     formType: string;
-    status: string;
+    status: { value: string; label: string; }[];
 }
 
 const STATUS_OPTIONS = [
@@ -65,6 +68,10 @@ export function RxFormFilter({
         }
     }, [open, values]);
 
+    useEffect(() => {
+        console.log(localValues);
+    }, [localValues]);
+
     const handleApply = () => {
         onApply(localValues);
         onOpenChange(false);
@@ -75,9 +82,19 @@ export function RxFormFilter({
             patientId: null,
             firstName: "",
             lastName: "",
-            appointmentDate: null,
+            appointmentFromDate: null,
+            appointmentToDate: null,
             formType: "",
-            status: "",
+            status: [
+                {
+                    value: "New",
+                    label: "New"
+                },
+                {
+                    value: "Draft",
+                    label: "Draft"
+                },
+            ],
         };
         setLocalValues(empty);
         onReset();
@@ -118,10 +135,10 @@ export function RxFormFilter({
                                         p.patientId != null
                                             ? String(p.patientId)
                                             : p.id != null
-                                              ? String(p.id)
-                                              : p.form_id != null
-                                                ? String(p.form_id)
-                                                : "";
+                                                ? String(p.id)
+                                                : p.form_id != null
+                                                    ? String(p.form_id)
+                                                    : "";
                                     if (!id) return null;
                                     return (
                                         <SelectItem key={id || `patient-${index}`} value={id}>
@@ -133,32 +150,76 @@ export function RxFormFilter({
                         </Select>
                     </div>
 
-                    {/* Appointment Date */}
+                    {/* Appointment From Date */}
                     <div className="grid gap-2">
-                        <Label>Appointment Date</Label>
+                        <Label>Appointment From Date</Label>
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
                                     className={cn(
                                         "w-full justify-start text-left font-normal !border !border-[#b5b5b5] !bg-[#F5F5F7] !h-10",
-                                        !localValues.appointmentDate && "text-muted-foreground"
+                                        !localValues.appointmentFromDate && "text-muted-foreground"
                                     )}
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {localValues.appointmentDate
-                                        ? format(localValues.appointmentDate, "MM-dd-yyyy")
+                                    {localValues.appointmentFromDate
+                                        ? format(localValues.appointmentFromDate, "MM-dd-yyyy")
                                         : "Pick a date"}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                     mode="single"
-                                    selected={localValues.appointmentDate ?? undefined}
+                                    selected={localValues.appointmentFromDate ?? undefined}
+                                    disabled={localValues.appointmentToDate ? [
+                                        {
+                                            after: localValues.appointmentToDate,
+                                        }
+                                    ] : undefined}
+
                                     onSelect={(date) =>
                                         setLocalValues((prev) => ({
                                             ...prev,
-                                            appointmentDate: date ?? null,
+                                            appointmentFromDate: date ?? null,
+                                            appointmentToDate: date ?? null,
+                                        }))
+                                    }
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    {/* Appointment To Date */}
+                    <div className="grid gap-2">
+                        <Label>Appointment To Date</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal !border !border-[#b5b5b5] !bg-[#F5F5F7] !h-10",
+                                        !localValues.appointmentToDate && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {localValues.appointmentToDate
+                                        ? format(localValues.appointmentToDate, "MM-dd-yyyy")
+                                        : "Pick a date"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={localValues.appointmentToDate ?? localValues.appointmentFromDate ?? undefined}
+                                    disabled={localValues.appointmentFromDate ? [
+                                        {
+                                            before: localValues.appointmentFromDate,
+                                        }
+                                    ] : undefined}
+                                    onSelect={(date) =>
+                                        setLocalValues((prev) => ({
+                                            ...prev,
+                                            appointmentToDate: date ?? null,
                                         }))
                                     }
                                 />
@@ -183,10 +244,10 @@ export function RxFormFilter({
                                     "w-full !border !border-[#b5b5b5] !bg-[#F5F5F7] !h-10"
                                 )}
                             >
-                                <SelectValue placeholder="All form types" />
+                                <SelectValue placeholder="All" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All form types</SelectItem>
+                                <SelectItem value="all">All</SelectItem>
                                 {formTypes.map((ft) => (
                                     <SelectItem key={ft} value={ft}>
                                         {ft}
@@ -199,10 +260,68 @@ export function RxFormFilter({
                     {/* Status */}
                     <div className="grid gap-2">
                         <Label>Status</Label>
-                        <Select
+                        <div className="flex flex-col justify-start gap-2">
+                            {
+                                STATUS_OPTIONS.map((opt) => (
+                                    <div key={opt.value} className="flex items-center gap-2">
+                                        <FieldGroup className="">
+                                            <Field orientation="horizontal" >
+                                                <Checkbox
+                                                    id={`status-checkbox-${opt.value}`}
+                                                    name={`status-checkbox-${opt.value}`}
+                                                    checked={localValues.status.some((s: { value: string; label: string; }) => s.value === opt.value)}
+                                                    onCheckedChange={(v) => {
+                                                        console.log(v, opt);
+                                                        if (opt.value === "") {
+
+                                                            setLocalValues((prev) => ({
+                                                                ...prev, status: v ? [
+                                                                    {
+                                                                        value: "New",
+                                                                        label: "New"
+                                                                    },
+                                                                    {
+                                                                        value: "Draft",
+                                                                        label: "Draft"
+                                                                    },
+                                                                    {
+                                                                        value: "Approved",
+                                                                        label: "Approved"
+                                                                    },
+                                                                    {
+                                                                        value: "",
+                                                                        label: "All"
+                                                                    },
+                                                                ] : []
+                                                            }));
+                                                        } else {
+                                                            setLocalValues((prev) => ({
+                                                                ...prev, status: v == true ?
+                                                                    [
+                                                                        ...(prev.status || []),
+                                                                        {
+                                                                            value: opt.value,
+                                                                            label: opt.label
+                                                                        }
+                                                                    ] : prev.status.filter((s: { value: string; label: string; }) => s.value !== opt.value)
+                                                            }));
+                                                        }
+                                                    }
+                                                    }
+                                                />
+                                                <FieldLabel htmlFor={`status-checkbox-${opt.value}`}>
+                                                    {opt.label}
+                                                </FieldLabel>
+                                            </Field>
+                                        </FieldGroup>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                        {/* <Select
                             value={localValues.status == "" ? "all" : localValues.status}
                             onValueChange={(v) =>
-                                setLocalValues((prev) => ({ ...prev, status: v == "all" ? "" : v }))
+                                setLocalValues((prev) => ({ ...prev, status: v == "all" ? [] : [{ value: v, label: v }] }))
                             }
                         >
                             <SelectTrigger
@@ -219,7 +338,7 @@ export function RxFormFilter({
                                     </SelectItem>
                                 ))}
                             </SelectContent>
-                        </Select>
+                        </Select> */}
                     </div>
                 </div>
                 <SheetFooter className="flex-row gap-2 border-t text-right justify-end">
